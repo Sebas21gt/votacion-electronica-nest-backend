@@ -1,16 +1,16 @@
-import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 
 export class UserUpdateDto {
+  @IsOptional()
   @IsString()
-  @MaxLength(50)
-  @IsOptional()
-  readonly firstName?: string;
+  @MaxLength(60)
+  readonly username?: string;
 
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  readonly lastName?: string;
+  readonly password?: string;
 
-  @IsEmail()
   @IsOptional()
-  readonly email?: string;
+  @IsUUID()
+  readonly status?: number;
 }

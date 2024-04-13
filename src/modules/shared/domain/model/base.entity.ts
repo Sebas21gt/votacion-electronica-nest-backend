@@ -8,8 +8,8 @@ import {
 } from 'typeorm';
 
 export class BaseTableEntity extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
   @Column({ name: 'user_creation' })
   userCreation!: string;
