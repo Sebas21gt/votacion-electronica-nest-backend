@@ -1,25 +1,23 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserCreateDto } from '../domain/dto/user-create.dto';
-import { UserUpdateDto } from '../domain/dto/user-update.dto';
 import { UserRepository } from '../domain/repository/user.repository';
+import { UserCreateDto } from '../domain/dto/user-create.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 import { MessageEnum } from 'src/modules/shared/enums/message.enum';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(UserRepository)
-    private readonly userRepository: UserRepository,
-  ) {}
+	constructor(@InjectRepository(UserRepository)
+	private readonly userRepository: UserRepository,	
+  ) { }
 
   async userCreate(
     userCreateDto: UserCreateDto,
     username: string,
   ): Promise<any> {
     const user = await this.userRepository.findOne({
-      where: { email: userCreateDto.email.trim(), status: StatusEnum.Active },
+      where: { username: userCreateDto.username, status: StatusEnum.Active },
     });
 
     if (user) {
@@ -29,81 +27,15 @@ export class UserService {
     return this.userRepository.createUser(userCreateDto, username);
   }
 
-  async userRegister(userCreateDto: UserCreateDto): Promise<any> {
-    const user = await this.userRepository.findOne({
-      where: { email: userCreateDto.email.trim(), status: StatusEnum.Active },
-    });
+  //   async getUserById(id: string): Promise<UserEntity> {
+  //       return this.userRepository.findOne(id);
+  //   }
 
-    if (user) {
-      return new MessageResponse(HttpStatus.OK, MessageEnum.USER_EXIST, null);
-    }
+  //   async getAllUsers(): Promise<UserEntity[]> {
+  //     return this.userRepository.findAll();
+  // }
 
-    return this.userRepository.registerUser(userCreateDto);
-  }
-
-  async getAll(): Promise<any> {
-    const users = await this.userRepository.find({
-      where: { status: StatusEnum.Active },
-    });
-
-    if (users.length < 1) {
-      return new MessageResponse(
-        HttpStatus.NOT_FOUND,
-        MessageEnum.ENTITY_SELECT_EMPTY,
-        null,
-      );
-    }
-
-    return users;
-  }
-
-  async getUser(id: number): Promise<any> {
-    const user = await this.userRepository.findOne({
-      where: {
-        id,
-        status: StatusEnum.Active,
-      },
-    });
-    return user;
-  }
-
-  async userUpdate(id: number, userUpdateDto: UserUpdateDto) {
-    const user = await this.userRepository.findOne({
-      where: {
-        id,
-        status: StatusEnum.Active,
-      },
-    });
-    if (!user) {
-      return new MessageResponse(
-        HttpStatus.NOT_FOUND,
-        MessageEnum.USER_NOT_EXIST,
-        null,
-      );
-    }
-    Object.assign(user, userUpdateDto);
-    await this.userRepository.update(id, user);
-    return new MessageResponse(HttpStatus.OK, MessageEnum.USER_UPDATE, user);
-  }
-
-  async userDelete(id: number) {
-    const user = await this.userRepository.findOne({
-      where: {
-        id,
-        status: StatusEnum.Active,
-      },
-    });
-    if (!user) {
-      return new MessageResponse(
-        HttpStatus.NOT_FOUND,
-        MessageEnum.USER_NOT_EXIST,
-        null,
-      );
-    }
-    return new MessageResponse(
-      HttpStatus.OK,
-      MessageEnum.USER_DELETE,
-      this.userRepository.update(id, { status: StatusEnum.Deleted }),
-    );
-  }
+  //   async updateUser(id: string, userDto: UserCreateDto, updater: string): Promise<UserEntity> {
+  //       return this.userRepository.updateUser(id, userDto, updater);
+  //   }
 }

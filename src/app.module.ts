@@ -1,17 +1,14 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/users/infraestructure/user.module';
-import { AuthMiddleware } from './modules/auth/infraestructure/middlewares/auth.middleware';
-
-
 
 const ENV = process.env.NODE_ENV;
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: !ENV ? '.env' : `.env.${ENV}` }),    
+    ConfigModule.forRoot({ envFilePath: !ENV ? '.env' : `.env.${ENV}` }),
     TypeOrmModule.forRoot({
       type: process.env.DB_TYPE as any,
       host: process.env.DB_HOST,
@@ -19,18 +16,14 @@ const ENV = process.env.NODE_ENV;
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [__dirname + '/**/*.entity{.ts,.js}', __dirname + '/**/*.view{.ts,.js}'],
-      }),
+      entities: [
+        __dirname + '/**/*.entity{.ts,.js}',
+        __dirname + '/**/*.view{.ts,.js}',
+      ],
+    }),
     UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: '*',
-      method: RequestMethod.ALL,
-    });
-  }
-}
+export class AppModule {}

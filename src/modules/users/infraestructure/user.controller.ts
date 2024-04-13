@@ -1,53 +1,30 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  ValidationPipe,
-  UsePipes,
-  ParseIntPipe,
-} from '@nestjs/common';
-import { Param, Req, UseGuards } from '@nestjs/common/decorators';
-import { UserCreateDto } from '../domain/dto/user-create.dto';
-import { UserUpdateDto } from '../domain/dto/user-update.dto';
+import { Controller, Post, Body, Get, Param, Put, ValidationPipe, UsePipes } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthGuard } from 'src/modules/shared/guards/auth.guard';
-const jwt = require('jsonwebtoken');
+import { UserCreateDto } from '../domain/dto/user-create.dto';
+import { UserEntity } from '../domain/model/user.entity';
 
-@Controller('/user')
-@UseGuards(AuthGuard)
+@Controller('/users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+    constructor(private readonly userService: UserService) {}
 
-  @Post('/register')
-  @UsePipes(new ValidationPipe())
-  async userRegister(@Body() userCreateDto: UserCreateDto): Promise<any> {
-    return await this.userService.userRegister(userCreateDto);
-  }
-  // async userCreate(@Req() request: Request, @Body() userCreateDto:UserCreateDto): Promise<any> {
-  //   const authorization = request.headers['authorization'];
-  //   const token = authorization.split(' ')[1];
-  //   var decoded = jwt.decode(token, process.env.JWT_ACCESS_TOKEN);
-  //   return await this.userService.userCreate(userCreateDto, decoded.email);
-  // }
+    @Post('/create-user')
+    @UsePipes(new ValidationPipe())
+    async createUser(@Body() userDto: UserCreateDto): Promise<UserEntity | object> {
+        return await this.userService.userCreate(userDto, 'Admin');
+    }
 
-  @Put('/:id')
-  userUpdate(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() userUpdateDto: UserUpdateDto,
-  ): any {
-    return this.userService.userUpdate(id, userUpdateDto);
-  }
+    // @Get(':id')
+    // async getUser(@Param('id') id: string): Promise<UserEntity | object> {
+    //     return await this.userService.getUserById(id);
+    // }
 
-  @Get()
-  async getAll(): Promise<any> {
-    return await this.userService.getAll();
-  }
+    // @Get('/get-all')
+    // async getAllUsers(): Promise<UserEntity | object> {
+    //     return await this.userService.getAllUsers();
+    // }
 
-  @Delete('/:id')
-  userDelete(@Param('id') id: number): any {
-    return this.userService.userDelete(id);
-  }
+    // @Put(':id')
+    // async updateUser(@Param('id') id: string, @Body() userDto: UserCreateDto): Promise<UserEntity | object> {
+    //     return await this.userService.updateUser(id, userDto, 'Admin');
+    // }
 }

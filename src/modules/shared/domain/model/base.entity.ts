@@ -11,16 +11,16 @@ export class BaseTableEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'user_creation' })
-  userCreation!: string;
+  @Column({ name: 'creation_user' })
+  creationUser!: string;
 
-  @Column({ name: 'user_update' })
-  userUpdate?: string;
+  @Column({ name: 'update_user' })
+  updateUser?: string;
 
-  @CreateDateColumn({ name: 'date_creation', default: new Date() })
+  @CreateDateColumn({ name: 'creation_time', default: new Date() })
   dateCreation!: Timestamp;
 
-  @UpdateDateColumn({ name: 'date_update' })
+  @UpdateDateColumn({ name: 'update_time' })
   dateUpdate?: Timestamp;
 
   @Column()

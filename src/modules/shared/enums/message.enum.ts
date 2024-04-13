@@ -3,12 +3,12 @@ export enum MessageEnum {
   CREDENTIALS_INVALID = 'Las credenciales son incorrectas!',
   ACCESS_INVALID = 'El acceso es inválido!',
   PASSWORD_UPDATED = 'Contraseña Actualizada!',
-  PASSWORD_RESET = 'Contraseña reseteada!',  
-  LOGIN_NOT_AUTORIZED = 'No autorizado!!!',  
-  
-  TOKEN_MODIFIED = "Token modificado",
-  TOKEN_NOT_EXIST = "Token No Existe!!",
-  TOKEN_DELETE = "Token eliminado correctamente.",
+  PASSWORD_RESET = 'Contraseña reseteada!',
+  LOGIN_NOT_AUTORIZED = 'No autorizado!!!',
+
+  TOKEN_MODIFIED = 'Token modificado',
+  TOKEN_NOT_EXIST = 'Token No Existe!!',
+  TOKEN_DELETE = 'Token eliminado correctamente.',
 
   ENTITY_SELECT = 'Datos devueltos correctamente.',
   ENTITY_ERROR_CREATE = 'Los datos no pudieron ser almacenados correctamente.',
@@ -16,10 +16,31 @@ export enum MessageEnum {
   ENTITY_PROCESS = 'Datos procesados correctamente.',
 
   USER_CREATED = 'Datos del Usuario fueron creados correctamente.',
-  USER_UPDATE = 'Datos del Usuario fueron modificados correctamente.',  
-  USER_DELETE = 'Datos del Usuario fueron eliminados correctamente.',    
+  USER_UPDATE = 'Datos del Usuario fueron modificados correctamente.',
+  USER_DELETE = 'Datos del Usuario fueron eliminados correctamente.',
   USER_EXIST = 'Datos de Usuario ya Existen!',
   USER_NOT_EXIST = 'Datos de Usuario no existen!',
   USER_VALIDATED = 'Datos del Usuario fueron validados correctamente.',
 
+  // Nuevos mensajes propuestos
+  ENTITY_ERROR_UPDATE = 'Los datos no pudieron ser actualizados correctamente.',
+  ENTITY_ERROR_DELETE = 'Los datos no pudieron ser eliminados correctamente.',
+  OPERATION_SUCCESS = 'Operación realizada con éxito!',
+  OPERATION_FAILED = 'La operación falló!',
+  PERMISSION_DENIED = 'Permiso denegado!',
+  SERVICE_UNAVAILABLE = 'Servicio no disponible en este momento. Por favor, inténtalo de nuevo más tarde.',
+  DATA_CONFLICT = 'Conflicto de datos detectado!',
+  DATA_INVALID = 'Datos proporcionados no son válidos!',
+  REQUEST_INVALID = 'Solicitud no válida!',
+  REQUEST_TIMEOUT = 'La solicitud ha excedido el tiempo de espera!',
+  SERVER_ERROR = 'Error interno del servidor!',
+  NOT_FOUND = 'El recurso solicitado no fue encontrado!',
+  RATE_LIMIT_EXCEEDED = 'Se ha excedido el límite de solicitudes!',
+
+  ROLE_CREATED = 'Datos del Rol fueron creados correctamente.',
+  ROLE_UPDATE = 'Datos del Rol fueron modificados correctamente.',
+  ROLE_DELETE = 'Datos del Rol fueron eliminados correctamente.',
+  ROLE_EXIST = 'Datos de Rol ya Existen!',
+  ROLE_NOT_EXIST = 'Datos de Rol no existen!',
+  ROLE_VALIDATED = 'Datos del Rol fueron validados correctamente.',
 }
