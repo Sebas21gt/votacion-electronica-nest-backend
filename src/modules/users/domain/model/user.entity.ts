@@ -11,13 +11,7 @@ export class UserEntity extends BaseTableEntity {
   lastName!: string;
 
   @Column()
-  email!: string;
-
-  @Column()
   password!: string;
-
-  @Column()
-  status!: number;
 
   @BeforeInsert()
   async hashPassword() {

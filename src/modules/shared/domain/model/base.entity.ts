@@ -22,4 +22,7 @@ export class BaseTableEntity extends BaseEntity {
 
   @UpdateDateColumn({ name: 'date_update' })
   dateUpdate?: Timestamp;
+
+  @Column()
+  status!: number;
 }
