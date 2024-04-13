@@ -1,12 +1,13 @@
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class UserCreateDto {
+export class FacultyCreateDto {
   @IsNotEmpty()
   @IsString()
-  @MaxLength(60)
-  readonly username: string;
+  @MaxLength(120)
+  readonly name: string;
 
   @IsNotEmpty()
   @IsString()
-  readonly password: string;
+  @MaxLength(500)
+  readonly address: string;
 }
