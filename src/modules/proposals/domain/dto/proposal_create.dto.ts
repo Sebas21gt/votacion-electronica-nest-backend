@@ -1,12 +1,10 @@
-import { IsString, MaxLength, IsUUID, IsOptional } from 'class-validator';
+import { IsString, MaxLength, IsUUID } from 'class-validator';
 
-export class ProposalUpdateDto {
-  @IsOptional()
+export class ProposalCreateDto {
   @IsString()
   @MaxLength(500)
   readonly description?: string;
 
-  @IsOptional()
   @IsUUID()
   readonly studentFrontId?: string;
 }

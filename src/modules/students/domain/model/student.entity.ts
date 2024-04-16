@@ -12,21 +12,21 @@ import {
 
 @Entity('students', { schema: 'voting' })
 export class StudentEntity extends BaseTableEntity {
-  @Column({ length: 80 })
-  name!: string;
+  @Column({ name: 'full_name', length: 400 })
+  fullname!: string;
 
-  @Column({ length: 200 })
-  lastName!: string;
-
-  @Column({ length: 60 })
+  @Column({ name: 'college_number', length: 60 })
   collegeNumber!: string;
 
-  @Column()
+  @Column({ name: 'ci_number', length: 20 })
+  ciNumber!: string;
+
+  @Column({ name: 'is_habilitated'})
   isHabilitated!: boolean;
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
-  user!: UserEntity;
+  userId!: UserEntity;
 
   @ManyToMany(() => CareerEntity)
   @JoinTable({

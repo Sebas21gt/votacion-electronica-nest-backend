@@ -9,13 +9,8 @@ import {
 export class StudentCreateDto {
   @IsNotEmpty()
   @IsString()
-  @MaxLength(80)
-  readonly name: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(200)
-  readonly lastName: string;
+  @MaxLength(400)
+  readonly fullname: string;
 
   @IsNotEmpty()
   @IsString()
@@ -23,10 +18,11 @@ export class StudentCreateDto {
   readonly collegeNumber: string;
 
   @IsNotEmpty()
-  @IsBoolean()
-  readonly isHabilitated: boolean;
+  @IsString()
+  @MaxLength(20)
+  readonly ciNumber: string;
 
   @IsNotEmpty()
-  @IsUUID()
-  readonly userId: string;
+  @IsBoolean()
+  readonly isHabilitated: boolean;
 }

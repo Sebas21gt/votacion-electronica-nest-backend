@@ -4,9 +4,9 @@ export class UserCreateDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(60)
-  readonly username: string;
+  username: string;
 
   @IsNotEmpty()
   @IsString()
-  readonly password: string;
+  password: string;
 }

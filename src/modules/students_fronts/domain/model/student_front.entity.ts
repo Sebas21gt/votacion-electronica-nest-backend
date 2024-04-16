@@ -9,6 +9,6 @@ export class StudentsFrontEntity extends BaseTableEntity {
   @Column({ type: 'bytea', nullable: true })
   logo!: Buffer;
 
-  @Column()
+  @Column({ name: 'is_habilitated' })
   isHabilitated!: boolean;
 }
