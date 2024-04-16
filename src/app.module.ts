@@ -4,6 +4,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/users/infraestructure/user.module';
+import { StudentModule } from './modules/students/infraestructure/student.module';
+import { FacultyModule } from './modules/faculties/infraestructure/faculty.module';
+import { CareerModule } from './modules/careers/infraestructure/career.module';
+import { StudentsFrontModule } from './modules/students_fronts/infraestructure/student_front.module';
+import { ProposalsModule } from './modules/proposals/infraestructure/proposal.module';
+import { StudentPositionModule } from './modules/student_positions/infraestructure/student_position.module';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -22,6 +28,12 @@ const ENV = process.env.NODE_ENV;
       ],
     }),
     UserModule,
+    CareerModule,
+    FacultyModule,
+    StudentModule,
+    StudentsFrontModule,
+    ProposalsModule,
+    StudentPositionModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,30 +1,47 @@
-import { Controller, Post, Body, Get, Param, Put, ValidationPipe, UsePipes } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Put,
+  ValidationPipe,
+  UsePipes,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserCreateDto } from '../domain/dto/user-create.dto';
 import { UserEntity } from '../domain/model/user.entity';
+import { UserUpdateDto } from '../domain/dto/user-update.dto';
+import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 
 @Controller('/users')
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
-    @Post('/create-user')
-    @UsePipes(new ValidationPipe())
-    async createUser(@Body() userDto: UserCreateDto): Promise<UserEntity | object> {
-        return await this.userService.userCreate(userDto, 'Admin');
-    }
+  @Post('/create-user')
+  @UsePipes(new ValidationPipe())
+  async createUser(
+    @Body() userDto: UserCreateDto,
+  ): Promise<UserEntity | object> {
+    return await this.userService.userCreate(userDto, 'Admin');
+  }
 
-    // @Get(':id')
-    // async getUser(@Param('id') id: string): Promise<UserEntity | object> {
-    //     return await this.userService.getUserById(id);
-    // }
+  @Put('/reset-password/:userId')
+  async resetPassword(
+    @Param('userId') userId: string,
+    @Body('oldPassword') oldPassword: string,
+    @Body('newPassword') newPassword: string,
+  ): Promise<MessageResponse> {
+    return await this.userService.resetPassword(userId, oldPassword, newPassword);
+  }
 
-    // @Get('/get-all')
-    // async getAllUsers(): Promise<UserEntity | object> {
-    //     return await this.userService.getAllUsers();
-    // }
+  @Get('/get-user/:id')
+  async getUserById(@Param('id') userId: string): Promise<UserEntity> {
+    return this.userService.findUserById(userId);
+  }
 
-    // @Put(':id')
-    // async updateUser(@Param('id') id: string, @Body() userDto: UserCreateDto): Promise<UserEntity | object> {
-    //     return await this.userService.updateUser(id, userDto, 'Admin');
-    // }
+  @Get('/get-users')
+  async getAllUsers(): Promise<UserEntity[]> {
+    return this.userService.findAllUsers();
+  }
 }

@@ -9,18 +9,18 @@ import {
 export class StudentUpdateDto {
   @IsOptional()
   @IsString()
-  @MaxLength(80)
-  readonly name?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
-  readonly lastName?: string;
+  @MaxLength(400)
+  readonly fullname?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(60)
   readonly collegeNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  readonly ciNumber?: string;
 
   @IsOptional()
   @IsBoolean()

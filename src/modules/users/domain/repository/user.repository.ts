@@ -1,10 +1,11 @@
-import { EntityRepository, Repository } from "typeorm";
-import { UserCreateDto } from "../dto/user-create.dto";
-import { UserEntity } from "../model/user.entity";
-import { HttpStatus } from "@nestjs/common";
-import { StatusEnum } from "src/modules/shared/enums/status.enum";
-import { MessageResponse } from "src/modules/shared/domain/model/message.response";
-import { MessageEnum } from "src/modules/shared/enums/message.enum";
+import { EntityRepository, Repository } from 'typeorm';
+import { UserCreateDto } from '../dto/user-create.dto';
+import { UserEntity } from '../model/user.entity';
+import { HttpStatus, InternalServerErrorException } from '@nestjs/common';
+import { StatusEnum } from 'src/modules/shared/enums/status.enum';
+import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
+import { MessageEnum } from 'src/modules/shared/enums/message.enum';
+import { hash, compare } from 'bcryptjs';
 
 @EntityRepository(UserEntity)
 export class UserRepository extends Repository<UserEntity> {
@@ -30,42 +31,66 @@ export class UserRepository extends Repository<UserEntity> {
     return user;
   }
 
-  // async updateUser(
-  //   id: string,
-  //   userDto: UserCreateDto,
-  //   updater: string,
-  // ): Promise<UserEntity> {
-  //   const user = await this.repository.findOne({ where: { id } });
-  //   if (!user) {
-  //     throw new NotFoundException('User not found.');
-  //   }
-  //   this.repository.merge(user, userDto, { updateUser: updater });
-  //   try {
-  //     return await this.repository.save(user);
-  //   } catch (e) {
-  //     console.error(e);
-  //     throw new InternalServerErrorException(
-  //       'Failed to update user due to an error.',
-  //     );
-  //   }
-  // }
+  async resetPassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<MessageResponse> {
+    const user = await this.findOne(userId);
+    if (!user) {
+      return new MessageResponse(
+        HttpStatus.NOT_FOUND,
+        MessageEnum.USER_NOT_EXIST,
+        'User not found.',
+      );
+    }
 
-  // async findOne(id: string): Promise<UserEntity> {
-  //   const user = await this.repository.findOne({ where: { id } });
-  //   if (!user) {
-  //     throw new NotFoundException('User not found.');
-  //   }
-  //   return user;
-  // }
+    const passwordMatches = await compare(oldPassword, user.password);
+    if (!passwordMatches) {
+      return new MessageResponse(
+        HttpStatus.BAD_REQUEST,
+        MessageEnum.INVALID_OLD_PASSWORD,
+        'Old password does not match.',
+      );
+    }
 
-  // async findAll(): Promise<UserEntity[]> {
-  //   try {
-  //     return await this.repository.find();
-  //   } catch (e) {
-  //     console.error(e);
-  //     throw new InternalServerErrorException(
-  //       'Failed to retrieve users due to an error.',
-  //     );
-  //   }
-  // }
+    try {
+      user.password = await hash(newPassword, 10);
+      await this.save(user);
+      return new MessageResponse(
+        HttpStatus.OK,
+        MessageEnum.PASSWORD_RESET,
+        'Password reset successfully.',
+      );
+    } catch (e) {
+      console.error(e);
+      return new MessageResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        MessageEnum.ENTITY_ERROR_UPDATE,
+        'Failed to reset password.',
+      );
+    }
+  }
+
+  async findOneById(userId: string): Promise<UserEntity | undefined> {
+    try {
+      const user = await this.findOne(userId);
+      if (!user) {
+        throw new Error(`User with ID ${userId} not found.`);
+      }
+      return user;
+    } catch (e) {
+      console.error(e);
+      throw new Error('Failed to retrieve user.');
+    }
+  }
+
+  async findAll(): Promise<UserEntity[]> {
+    try {
+      return await this.find();
+    } catch (e) {
+      console.error(e);
+      throw new InternalServerErrorException('Failed to retrieve users.');
+    }
+  }
 }

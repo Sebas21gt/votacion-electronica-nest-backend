@@ -14,6 +14,9 @@ export enum MessageEnum {
   ENTITY_ERROR_CREATE = 'Los datos no pudieron ser almacenados correctamente.',
   ENTITY_SELECT_EMPTY = 'No se encontraron registros.',
   ENTITY_PROCESS = 'Datos procesados correctamente.',
+  ENTITY_DELETE_SUCCESS = 'Datos eliminados correctamente.',
+  ENTITY_ERROR_UPDATE = 'Los datos no pudieron ser actualizados correctamente.',
+  ENTITY_ERROR_DELETE = 'Los datos no pudieron ser eliminados correctamente.',
 
   USER_CREATED = 'Datos del Usuario fueron creados correctamente.',
   USER_UPDATE = 'Datos del Usuario fueron modificados correctamente.',
@@ -23,8 +26,6 @@ export enum MessageEnum {
   USER_VALIDATED = 'Datos del Usuario fueron validados correctamente.',
 
   // Nuevos mensajes propuestos
-  ENTITY_ERROR_UPDATE = 'Los datos no pudieron ser actualizados correctamente.',
-  ENTITY_ERROR_DELETE = 'Los datos no pudieron ser eliminados correctamente.',
   OPERATION_SUCCESS = 'Operación realizada con éxito!',
   OPERATION_FAILED = 'La operación falló!',
   PERMISSION_DENIED = 'Permiso denegado!',
@@ -36,6 +37,8 @@ export enum MessageEnum {
   SERVER_ERROR = 'Error interno del servidor!',
   NOT_FOUND = 'El recurso solicitado no fue encontrado!',
   RATE_LIMIT_EXCEEDED = 'Se ha excedido el límite de solicitudes!',
+  INVALID_OLD_PASSWORD = 'La contraseña antigua no coincide!',
+  ENTITY_ERROR_RETRIEVE = 'Los datos no pudieron ser recuperados correctamente.',
 
   ROLE_CREATED = 'Datos del Rol fueron creados correctamente.',
   ROLE_UPDATE = 'Datos del Rol fueron modificados correctamente.',
@@ -43,4 +46,22 @@ export enum MessageEnum {
   ROLE_EXIST = 'Datos de Rol ya Existen!',
   ROLE_NOT_EXIST = 'Datos de Rol no existen!',
   ROLE_VALIDATED = 'Datos del Rol fueron validados correctamente.',
+
+  STUDENT_FRONT_CREATED = 'Datos del Estudiante Front fueron creados correctamente.',
+  STUDENT_FRONT_UPDATE = 'Datos del Estudiante Front fueron modificados correctamente.',
+  STUDENT_FRONT_DELETE = 'Datos del Estudiante Front fueron eliminados correctamente.',
+  STUDENT_FRONT_EXIST = 'Datos de Estudiante Front ya Existen!',
+  STUDENT_FRONT_NOT_EXIST = 'Datos de Estudiante Front no existen!',
+  STUDENT_FRONT_VALIDATED = 'Datos del Estudiante Front fueron validados correctamente.',
+  STUDENT_FRONT_ERROR_RETRIEVE = 'Los datos del Estudiante Front no pudieron ser recuperados correctamente.',
+  STUDENT_FRONT_ERROR_CREATE = 'Los datos del Estudiante Front no pudieron ser creados correctamente.',
+
+  PROPOSAL_CREATED = 'Datos de la Propuesta fueron creados correctamente.',
+  PROPOSAL_UPDATE = 'Datos de la Propuesta fueron modificados correctamente.',
+  PROPOSAL_DELETE = 'Datos de la Propuesta fueron eliminados correctamente.',
+  PROPOSAL_EXIST = 'Datos de la Propuesta ya Existen!',
+  PROPOSAL_NOT_EXIST = 'Datos de la Propuesta no existen!',
+  PROPOSAL_VALIDATED = 'Datos de la Propuesta fueron validados correctamente.',
+  PROPOSAL_ERROR_RETRIEVE = 'Los datos de la Propuesta no pudieron ser recuperados correctamente.',
+  PROPOSAL_ERROR_CREATE = 'Los datos de la Propuesta no pudieron ser creados correctamente.',
 }

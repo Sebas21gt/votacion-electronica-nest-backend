@@ -4,13 +4,13 @@ export class UserUpdateDto {
   @IsOptional()
   @IsString()
   @MaxLength(60)
-  readonly username?: string;
+  username?: string;
 
   @IsOptional()
   @IsString()
-  readonly password?: string;
+  password?: string;
 
   @IsOptional()
   @IsUUID()
-  readonly status?: number;
+  status?: number;
 }
