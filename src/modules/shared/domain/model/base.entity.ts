@@ -12,7 +12,7 @@ export class BaseTableEntity extends BaseEntity {
   id!: string;
 
   @Column({ name: 'creation_user' })
-  creationUser!: string;
+  creationUser: string;
 
   @Column({ name: 'update_user' })
   updateUser?: string;

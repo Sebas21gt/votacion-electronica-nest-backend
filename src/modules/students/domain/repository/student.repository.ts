@@ -6,6 +6,10 @@ import * as XLSX from 'xlsx';
 import * as bcrypt from 'bcryptjs';
 import { StudentCreateDto } from '../dto/student_create.dto';
 import { StudentUpdateDto } from '../dto/student_update.dto';
+import { RolesEnum } from 'src/modules/shared/enums/roles.enum';
+import { RoleEntity } from 'src/modules/roles/domain/model/role.entity';
+import { GlobalService } from 'src/modules/shared/global.service';
+import { CareerEntity } from 'src/modules/careers/domain/model/career.entity';
 
 @EntityRepository(StudentEntity)
 export class StudentRepository extends Repository<StudentEntity> {
@@ -115,38 +119,134 @@ export class StudentRepository extends Repository<StudentEntity> {
   }
 
   async importStudentsFromExcel(data: any): Promise<StudentEntity[]> {
-    const createdStudents: StudentEntity[] = [];
+    const errorStudents: StudentEntity[] = [];
 
-    console.log(data);
-
-    for (const item of data) {
-      const user = new UserEntity();
-      user.username = item.CU;
-      user.password = await bcrypt.hash(item.CI, 10);
-      user.creationUser = 'admin';
-
-      const student = new StudentEntity();
-      student.fullname = item['APELLIDOS Y NOMBRES'];
-      student.collegeNumber = item.CU;
-      student.ciNumber = item.CI;
-      student.isHabilitated = true;
-      student.creationUser = 'admin';
-      student.userId = user;
-
-      try {
-        await this.manager.transaction(async (transactionalEntityManager) => {
-          await transactionalEntityManager.save(user);
-          await transactionalEntityManager.save(student);
-          createdStudents.push(student);
-        });
-      } catch (error) {
-        console.error(error);
-        throw new InternalServerErrorException(
-          'Failed to import students from excel.',
-        );
+    await this.manager.transaction(async (transactionalEntityManager) => {
+      const role = await transactionalEntityManager.findOne(RoleEntity, {
+        where: { id: RolesEnum.STUDENT },
+      });
+      if (!role) {
+        throw new Error('Role not found for students.');
       }
-    }
 
-    return createdStudents;
+      for (const item of data) {
+        let user = await transactionalEntityManager.findOne(UserEntity, {
+          where: { username: item.CI },
+        });
+
+        if (!user) {
+          user = transactionalEntityManager.create(UserEntity, {
+            username: item.CI,
+            password: await bcrypt.hash(item.CI, 10),
+            creationUser: 'admin',
+            roles: [role],
+          });
+          await transactionalEntityManager.save(user);
+        }
+
+        let student = await transactionalEntityManager.findOne(StudentEntity, {
+          where: { userId: user.id },
+          relations: ['careers'], // Cargar las carreras existentes
+        });
+
+        if (!student) {
+          student = transactionalEntityManager.create(StudentEntity, {
+            fullname: item['APELLIDOS Y NOMBRES'],
+            collegeNumber: item.CU,
+            ciNumber: item.CI,
+            isHabilitated: true,
+            creationUser: 'admin',
+            userId: user,
+          });
+          student.careers = [];
+        }
+
+        const careerPrefix = item.CU.split('-')[0];
+        const career = await transactionalEntityManager.findOne(CareerEntity, {
+          where: { collegeId: parseInt(careerPrefix) },
+        });
+
+        if (career) {
+          if (!student.careers.some((c) => c.id === career.id)) {
+            student.careers.push(career); // Añadir la carrera si no está ya asociada
+          }
+        } else {
+          console.error('Career not found for prefix:', careerPrefix);
+          errorStudents.push(item);
+        }
+
+        try {
+          await transactionalEntityManager.save(student); // Guardar el estudiante con las carreras actualizadas
+        } catch (error) {
+          console.error('Failed to save student:', error);
+          errorStudents.push(student);
+        }
+      }
+    });
+
+    return errorStudents;
   }
+
+  // async importStudentsFromExcel(data: any): Promise<StudentEntity[]> {
+  //   const errorStudents: StudentEntity[] = [];
+
+  //   await this.manager.transaction(async (transactionalEntityManager) => {
+  //     const role = await transactionalEntityManager.findOne(RoleEntity, {
+  //       where: { id: RolesEnum.STUDENT },
+  //     });
+
+  //     console.log(data);
+
+  //     for (const item of data) {
+  //       const userExist = await transactionalEntityManager.findOne(UserEntity, {
+  //         where: { username: item.CU },
+  //       });
+  //       if (userExist) {
+  //         errorStudents.push(item);
+  //         continue;
+  //       }
+  //       const studentExist = await transactionalEntityManager.findOne(
+  //         StudentEntity,
+  //         {
+  //           where: {
+  //             collegeNumber: item.CU,
+  //             ciNumber: item.CI,
+  //           },
+  //         },
+  //       );
+  //       if (studentExist) {
+  //         errorStudents.push(item);
+  //         continue;
+  //       }
+  //       const user = new UserEntity();
+  //       user.username = item.CU;
+  //       user.password = await bcrypt.hash(item.CI, 10);
+  //       user.creationUser = 'admin';
+  //       user.roles = [role];
+
+  //       const student = new StudentEntity();
+  //       student.fullname = item['APELLIDOS Y NOMBRES'];
+  //       student.collegeNumber = item.CU;
+  //       student.ciNumber = item.CI;
+  //       student.isHabilitated = true;
+  //       student.creationUser = 'admin';
+  //       student.userId = user;
+
+  //       console.log('user', user);
+
+  //       try {
+  //         // await this.manager.transaction(async (transactionalEntityManager) => {
+  //         await transactionalEntityManager.save(user);
+  //         await transactionalEntityManager.save(student);
+  //         //   createdStudents.push(student);
+  //         // });
+  //       } catch (error) {
+  //         console.error(error);
+  //         errorStudents.push(student);
+  //       }
+  //     }
+  //   });
+
+  //   return errorStudents;
+  // }
 }

@@ -52,4 +52,8 @@ export class UserService {
   async findAllUsers(): Promise<UserEntity[]> {
     return this.userRepository.findAll();
   }
+
+  async findOne(username: string): Promise<UserEntity | undefined> {
+    return await this.userRepository.findOne({ where: { username } });
+  }
 }

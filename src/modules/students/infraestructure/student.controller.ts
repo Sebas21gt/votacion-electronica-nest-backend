@@ -14,6 +14,7 @@ import { StudentCreateDto } from '../domain/dto/student_create.dto';
 import { StudentUpdateDto } from '../domain/dto/student_update.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as XLSX from 'xlsx';
+import { GlobalService } from 'src/modules/shared/global.service';
 
 @Controller('/students')
 export class StudentController {
@@ -51,6 +52,8 @@ export class StudentController {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const data = XLSX.utils.sheet_to_json(worksheet);
+
+        GlobalService.userSession = 'admin';
 
         return this.studentService.importStudentsFromExcel(data);
     }

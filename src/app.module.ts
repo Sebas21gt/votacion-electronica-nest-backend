@@ -10,6 +10,8 @@ import { CareerModule } from './modules/careers/infraestructure/career.module';
 import { StudentsFrontModule } from './modules/students_fronts/infraestructure/student_front.module';
 import { ProposalsModule } from './modules/proposals/infraestructure/proposal.module';
 import { StudentPositionModule } from './modules/student_positions/infraestructure/student_position.module';
+import { EntitySubscriber } from './modules/shared/subscriber/context.subscriber';
+import { AuthModule } from './modules/auth/auth.module';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -26,7 +28,9 @@ const ENV = process.env.NODE_ENV;
         __dirname + '/**/*.entity{.ts,.js}',
         __dirname + '/**/*.view{.ts,.js}',
       ],
+      subscribers: [EntitySubscriber]
     }),
+    AuthModule,
     UserModule,
     CareerModule,
     FacultyModule,
@@ -37,5 +41,6 @@ const ENV = process.env.NODE_ENV;
   ],
   controllers: [AppController],
   providers: [AppService],
+  
 })
 export class AppModule {}

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { StudentPositionRepository } from '../domain/repository/student_position.repository';
 import { StudentPositionCreateDto } from '../domain/dto/student_position_create.dto';
 import { StudentPositionUpdateDto } from '../domain/dto/student_position_update.dto';
+import { StudentPositionRepository } from '../domain/repository/student_position.repository';
 
 
 @Injectable()

@@ -8,9 +8,11 @@ import {
   JoinColumn,
   ManyToMany,
   JoinTable,
+  Unique,
 } from 'typeorm';
 
 @Entity('students', { schema: 'voting' })
+@Unique(['ciNumber' ,'collegeNumber'])
 export class StudentEntity extends BaseTableEntity {
   @Column({ name: 'full_name', length: 400 })
   fullname!: string;

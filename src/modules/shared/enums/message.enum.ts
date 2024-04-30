@@ -47,6 +47,13 @@ export enum MessageEnum {
   ROLE_NOT_EXIST = 'Datos de Rol no existen!',
   ROLE_VALIDATED = 'Datos del Rol fueron validados correctamente.',
 
+  STUDENT_CREATED = 'Datos del Estudiante fueron creados correctamente.',
+  STUDENT_UPDATE = 'Datos del Estudiante fueron modificados correctamente.',
+  STUDENT_DELETE = 'Datos del Estudiante fueron eliminados correctamente.',
+  STUDENT_EXIST = 'Datos de Estudiante ya Existen!',
+  STUDENT_NOT_EXIST = 'Datos de Estudiante no existen!',
+  STUDENT_VALIDATED = 'Datos del Estudiante fueron validados correctamente.',
+
   STUDENT_FRONT_CREATED = 'Datos del Estudiante Front fueron creados correctamente.',
   STUDENT_FRONT_UPDATE = 'Datos del Estudiante Front fueron modificados correctamente.',
   STUDENT_FRONT_DELETE = 'Datos del Estudiante Front fueron eliminados correctamente.',

@@ -1,10 +1,8 @@
-// src/proposals/services/proposals.service.ts
-
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProposalsRepository } from '../domain/repository/proposal.repository';
 import { ProposalCreateDto } from '../domain/dto/proposal_create.dto';
 import { ProposalUpdateDto } from '../domain/dto/proposal_update.dto';
+import { ProposalsRepository } from '../domain/repository/proposal.repository';
 
 @Injectable()
 export class ProposalsService {

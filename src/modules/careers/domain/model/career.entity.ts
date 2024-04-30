@@ -8,6 +8,9 @@ export class CareerEntity extends BaseTableEntity {
   @Column({ length: 120 })
   name!: string;
 
+  @Column({ name: 'college_id', length: 20 })
+  collegeId!: string;
+
   @ManyToMany(() => StudentEntity, (student) => student.careers)
   students!: StudentEntity[];
 
