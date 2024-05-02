@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { StudentService } from './Student.service';
 import { StudentCreateDto } from '../domain/dto/student_create.dto';
@@ -15,6 +16,10 @@ import { StudentUpdateDto } from '../domain/dto/student_update.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as XLSX from 'xlsx';
 import { GlobalService } from 'src/modules/shared/global.service';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
+import { RoleGuard } from 'src/modules/auth/guards/roles.guard';
+import { RolesEnum } from 'src/modules/shared/enums/roles.enum';
+import { Roles } from 'src/modules/shared/decorators/roles.decorator';
 
 @Controller('/students')
 export class StudentController {
@@ -45,6 +50,8 @@ export class StudentController {
     return this.studentService.removeStudent(id);
   }
 
+  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE)
+  @UseGuards(AuthGuard, RoleGuard)
   @Post('/import-students')
     @UseInterceptors(FileInterceptor('file'))
     async importStudents(@UploadedFile() file: Express.Multer.File) {

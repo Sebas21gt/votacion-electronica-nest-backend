@@ -24,8 +24,8 @@ export enum MessageEnum {
   USER_EXIST = 'Datos de Usuario ya Existen!',
   USER_NOT_EXIST = 'Datos de Usuario no existen!',
   USER_VALIDATED = 'Datos del Usuario fueron validados correctamente.',
+  USER_HAS_NOT_ROLES = 'Usuario no tiene roles asignados!',
 
-  // Nuevos mensajes propuestos
   OPERATION_SUCCESS = 'Operación realizada con éxito!',
   OPERATION_FAILED = 'La operación falló!',
   PERMISSION_DENIED = 'Permiso denegado!',
