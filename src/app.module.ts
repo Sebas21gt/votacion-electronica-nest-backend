@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,6 +12,7 @@ import { ProposalsModule } from './modules/proposals/infraestructure/proposal.mo
 import { StudentPositionModule } from './modules/student_positions/infraestructure/student_position.module';
 import { EntitySubscriber } from './modules/shared/subscriber/context.subscriber';
 import { AuthModule } from './modules/auth/auth.module';
+import { AuthMiddleware } from './modules/auth/middleware/auth.middleware';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -43,4 +44,12 @@ const ENV = process.env.NODE_ENV;
   providers: [AppService],
   
 })
-export class AppModule {}
+
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes({
+      path: '*',
+      method: RequestMethod.ALL
+    });
+  }
+}

@@ -137,7 +137,7 @@ export class StudentRepository extends Repository<StudentEntity> {
         if (!user) {
           user = transactionalEntityManager.create(UserEntity, {
             username: item.CI,
-            password: await bcrypt.hash(item.CI, 10),
+            password: item.CI,
             creationUser: 'admin',
             roles: [role],
           });
@@ -146,7 +146,7 @@ export class StudentRepository extends Repository<StudentEntity> {
 
         let student = await transactionalEntityManager.findOne(StudentEntity, {
           where: { userId: user.id },
-          relations: ['careers'], // Cargar las carreras existentes
+          relations: ['careers'],
         });
 
         if (!student) {
@@ -186,67 +186,4 @@ export class StudentRepository extends Repository<StudentEntity> {
 
     return errorStudents;
   }
-
-  // async importStudentsFromExcel(data: any): Promise<StudentEntity[]> {
-  //   const errorStudents: StudentEntity[] = [];
-
-  //   await this.manager.transaction(async (transactionalEntityManager) => {
-  //     const role = await transactionalEntityManager.findOne(RoleEntity, {
-  //       where: { id: RolesEnum.STUDENT },
-  //     });
-
-  //     console.log(data);
-
-  //     for (const item of data) {
-  //       const userExist = await transactionalEntityManager.findOne(UserEntity, {
-  //         where: { username: item.CU },
-  //       });
-  //       if (userExist) {
-  //         errorStudents.push(item);
-  //         continue;
-  //       }
-  //       const studentExist = await transactionalEntityManager.findOne(
-  //         StudentEntity,
-  //         {
-  //           where: {
-  //             collegeNumber: item.CU,
-  //             ciNumber: item.CI,
-  //           },
-  //         },
-  //       );
-  //       if (studentExist) {
-  //         errorStudents.push(item);
-  //         continue;
-  //       }
-  //       const user = new UserEntity();
-  //       user.username = item.CU;
-  //       user.password = await bcrypt.hash(item.CI, 10);
-  //       user.creationUser = 'admin';
-  //       user.roles = [role];
-
-  //       const student = new StudentEntity();
-  //       student.fullname = item['APELLIDOS Y NOMBRES'];
-  //       student.collegeNumber = item.CU;
-  //       student.ciNumber = item.CI;
-  //       student.isHabilitated = true;
-  //       student.creationUser = 'admin';
-  //       student.userId = user;
-
-  //       console.log('user', user);
-
-  //       try {
-  //         // await this.manager.transaction(async (transactionalEntityManager) => {
-  //         await transactionalEntityManager.save(user);
-  //         await transactionalEntityManager.save(student);
-  //         //   createdStudents.push(student);
-  //         // });
-  //       } catch (error) {
-  //         console.error(error);
-  //         errorStudents.push(student);
-  //       }
-  //     }
-  //   });
-
-  //   return errorStudents;
-  // }
 }

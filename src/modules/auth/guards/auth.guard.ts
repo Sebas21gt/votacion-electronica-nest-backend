@@ -3,10 +3,10 @@ import {
   ExecutionContext,
   HttpException,
   HttpStatus,
-  Injectable,
+  Injectable
 } from '@nestjs/common';
-import { ExpressRequest } from '../types/expressRequest.interface';
-import { MessageEnum } from '../enums/message.enum';
+import { MessageEnum } from 'src/modules/shared/enums/message.enum';
+import { ExpressRequest } from 'src/modules/shared/types/expressRequest.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -17,9 +17,6 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    throw new HttpException(
-      MessageEnum.LOGIN_NOT_AUTORIZED,
-      HttpStatus.UNAUTHORIZED,
-    );
+    throw new HttpException(MessageEnum.LOGIN_NOT_AUTORIZED, HttpStatus.UNAUTHORIZED);
   }
 }

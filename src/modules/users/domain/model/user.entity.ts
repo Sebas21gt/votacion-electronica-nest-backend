@@ -13,9 +13,6 @@ export class UserEntity extends BaseTableEntity {
   @Column()
   password!: string;
 
-  // @ManyToOne(() => RolesHasUserEntity, (rolesHasUser) => rolesHasUser.user)
-  // rolesHasUser!: RolesHasUserEntity;
-
   @ManyToMany(() => RoleEntity, (role) => role.users)
   @JoinTable({
     name: 'roles_has_users',
@@ -26,6 +23,6 @@ export class UserEntity extends BaseTableEntity {
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await hash(this.password, 10); // Simplificar usando un valor fijo para el ejemplo
+    this.password = await hash(this.password, 10);
   }
 }
