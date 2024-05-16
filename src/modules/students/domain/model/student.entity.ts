@@ -28,7 +28,7 @@ export class StudentEntity extends BaseTableEntity {
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
-  userId!: UserEntity;
+  user!: UserEntity;
 
   @ManyToMany(() => CareerEntity)
   @JoinTable({

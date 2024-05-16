@@ -13,6 +13,13 @@ import { StudentPositionModule } from './modules/student_positions/infraestructu
 import { EntitySubscriber } from './modules/shared/subscriber/context.subscriber';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthMiddleware } from './modules/auth/middleware/auth.middleware';
+import { ElectoralConfigurationModule } from './modules/electoral_configuration/infraestructure/electoral_configuration.module';
+import { ElectoralRecordModule } from './modules/electoral_records/infraestructure/electoral_record.module';
+import { DelegatesModule } from './modules/delegates/infraestructure/delegate.module';
+import { PollingTablesModule } from './modules/polling_tables/infraestructure/polling_table.module';
+import { ElectoralRecordSignatureModule } from './modules/electoral_records_signature/infraestructure/electoral_record_signature.module';
+import { VotesModule } from './modules/votes/infraestructure/vote.module';
+import { ResultsModule } from './modules/results/infraestructure/results.module';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -32,13 +39,22 @@ const ENV = process.env.NODE_ENV;
       subscribers: [EntitySubscriber]
     }),
     AuthModule,
-    UserModule,
     CareerModule,
+    DelegatesModule, //! Falta agregar al user el Rol
+    ElectoralConfigurationModule,
+    ElectoralRecordModule,
+    ElectoralRecordSignatureModule,
     FacultyModule,
+    //HashesModule,
+    PollingTablesModule,
+    ProposalsModule,
+    ResultsModule,
+    //RolesModule,
+    StudentPositionModule, //! Falta agregar al user el Rol
     StudentModule,
     StudentsFrontModule,
-    ProposalsModule,
-    StudentPositionModule
+    UserModule,
+    VotesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,3 @@
-// src/student-positions/repositories/student-position.repository.ts
-
 import { EntityRepository, Repository } from 'typeorm';
 import { HttpStatus } from '@nestjs/common';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
@@ -51,7 +49,6 @@ export class StudentPositionRepository extends Repository<StudentPositionEntity>
   ): Promise<StudentPositionEntity | MessageResponse> {
     try {
       const position = this.create(dto);
-      position.creationUser = 'admin';
       return await this.save(position);
     } catch (error) {
       console.error(error);

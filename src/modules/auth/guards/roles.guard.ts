@@ -22,11 +22,8 @@ export class RoleGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const token = request.headers.authorization;
-    console.log("token: ",token);
     const userRoles = await JwtHelper.getUserRoles(token);
-    console.log("Roles: ",userRoles);
     const userRolesMatch = roles.some(roles => userRoles.includes(roles));
-    console.log("Roles Match: ", roles);
     if (!userRolesMatch) {
       throw new HttpException(MessageEnum.USER_HAS_NOT_ROLES, HttpStatus.UNAUTHORIZED);
     }

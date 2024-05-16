@@ -20,7 +20,7 @@ export class StudentService {
   }
 
   findAllStudents(): Promise<StudentEntity[]> {
-    return this.studentRepository.find();
+    return this.studentRepository.findAllStudents();
   }
 
   findStudentById(id: string): Promise<StudentEntity> {

@@ -45,7 +45,6 @@ export class StudentsFrontRepository extends Repository<StudentsFrontEntity> {
     async createStudentFront(studentFrontDto: StudentsFrontCreateDto): Promise<StudentsFrontEntity | MessageResponse> {
         try {
             const studentFront = this.create(studentFrontDto);
-            studentFront.creationUser = 'admin';
             return await this.save(studentFront);
         } catch (error) {
             console.error(error);

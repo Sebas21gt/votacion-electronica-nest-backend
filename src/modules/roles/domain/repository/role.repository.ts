@@ -15,15 +15,11 @@ export class RoleRepository {
 
   async createRole(
     roleDto: RoleCreateDto,
-    creator: string,
   ): Promise<MessageResponse | RoleEntity> {
     const role = this.repository.create(roleDto);
-    role.creationUser = creator;
-    // role.updateUser = creator;
 
     try {
       await this.repository.save(role);
-      // return new MessageResponse(HttpStatus.CREATED, MessageEnum.ROLE_CREATED);
     } catch (e) {
       console.error(e);
       return new MessageResponse(

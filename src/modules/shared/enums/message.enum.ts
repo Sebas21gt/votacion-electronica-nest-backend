@@ -71,4 +71,19 @@ export enum MessageEnum {
   PROPOSAL_VALIDATED = 'Datos de la Propuesta fueron validados correctamente.',
   PROPOSAL_ERROR_RETRIEVE = 'Los datos de la Propuesta no pudieron ser recuperados correctamente.',
   PROPOSAL_ERROR_CREATE = 'Los datos de la Propuesta no pudieron ser creados correctamente.',
+  PROPOSAL_ERROR_UPDATE = 'Los datos de la Propuesta no pudieron ser actualizados correctamente.',
+  PROPOSAL_ERROR_DELETE = 'Los datos de la Propuesta no pudieron ser eliminados correctamente.',
+
+  CAREER_CREATED = 'Datos de la Carrera fueron creados correctamente.',
+  CAREER_UPDATE = 'Datos de la Carrera fueron modificados correctamente.',
+  CAREER_DELETE = 'Datos de la Carrera fueron eliminados correctamente.',
+  CAREER_EXIST = 'Datos de la Carrera ya Existen!',
+  CAREER_NOT_EXIST = 'Datos de la Carrera no existen!',
+  CAREER_VALIDATED = 'Datos de la Carrera fueron validados correctamente.',
+  CAREER_ERROR_RETRIEVE = 'Los datos de la Carrera no pudieron ser recuperados correctamente.',
+  CAREER_ERROR_CREATE = 'Los datos de la Carrera no pudieron ser creados correctamente.',
+  CAREER_ERROR_UPDATE = 'Los datos de la Carrera no pudieron ser actualizados correctamente.',
+  CAREER_ERROR_DELETE = 'Los datos de la Carrera no pudieron ser eliminados correctamente.',
+
+  INVALID_ROLE = 'Rol inválido',
 }

@@ -1,4 +1,4 @@
-import { IsOptional, IsDate, IsInt, IsUUID } from 'class-validator';
+import { IsOptional, IsDate, IsInt, IsUUID, IsArray, ArrayNotEmpty } from 'class-validator';
 
 export class ElectoralConfigurationUpdateDto {
   @IsOptional()
@@ -16,7 +16,8 @@ export class ElectoralConfigurationUpdateDto {
   @IsInt()
   readonly numberTableElections?: number;
 
-  @IsOptional()
-  @IsUUID()
-  readonly careersId?: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsUUID("4", { each: true })
+  readonly careersId: string[];
 }

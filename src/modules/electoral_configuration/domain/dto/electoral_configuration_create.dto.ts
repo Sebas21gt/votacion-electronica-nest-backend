@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsDate, IsInt, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsDate, IsInt, IsUUID, IsArray, ArrayNotEmpty } from 'class-validator';
 
 export class ElectoralConfigurationCreateDto {
   @IsNotEmpty()
@@ -16,7 +16,11 @@ export class ElectoralConfigurationCreateDto {
   @IsInt()
   readonly numberTableElections: number;
 
-  @IsNotEmpty()
-  @IsUUID()
-  readonly careersId: string;
+  // @IsNotEmpty()
+  // @IsUUID()
+  // readonly careersId: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsUUID("4", { each: true })
+  readonly careersId: string[];
 }
