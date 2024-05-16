@@ -14,7 +14,6 @@ export class FacultyRepository extends Repository<FacultyEntity> {
     const faculty = new FacultyEntity();
     faculty.name = facultyDto.name;
     faculty.address = facultyDto.address;
-    faculty.creationUser = "admin";
 
     try {
       return await this.save(faculty);

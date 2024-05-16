@@ -25,26 +25,37 @@ import { Roles } from 'src/modules/shared/decorators/roles.decorator';
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
+  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE)
+  @UseGuards(AuthGuard, RoleGuard)
   @Post('/create-student')
   createStudentWithUser(@Body() studentCreateDto: StudentCreateDto) {
     return this.studentService.createStudentWithUser(studentCreateDto);
   }
 
+  // @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE,  RolesEnum.DELEGATE)
+  // @UseGuards(AuthGuard, RoleGuard)
   @Get('/get-students')
-  findAllStudents() {
-    return this.studentService.findAllStudents();
+  async findAllStudents() {
+    const students = await this.studentService.findAllStudents();
+    return students;
   }
 
+  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE)
+  @UseGuards(AuthGuard, RoleGuard)
   @Get('/get-student/:id')
   findStudentById(@Param('id') id: string) {
     return this.studentService.findStudentById(id);
   }
 
+  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE)
+  @UseGuards(AuthGuard, RoleGuard)
   @Put('/update-student/:id')
   updateStudent(@Param('id') id: string, @Body() studentDto: StudentUpdateDto) {
     return this.studentService.updateStudent(id, studentDto);
   }
 
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Delete('/delete-student/:id')
   removeStudent(@Param('id') id: string) {
     return this.studentService.removeStudent(id);
@@ -53,15 +64,13 @@ export class StudentController {
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE)
   @UseGuards(AuthGuard, RoleGuard)
   @Post('/import-students')
-    @UseInterceptors(FileInterceptor('file'))
-    async importStudents(@UploadedFile() file: Express.Multer.File) {
-        const workbook = XLSX.read(file.buffer, { type: 'buffer' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const data = XLSX.utils.sheet_to_json(worksheet);
+  @UseInterceptors(FileInterceptor('file'))
+  async importStudents(@UploadedFile() file: Express.Multer.File) {
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(worksheet);
 
-        GlobalService.userSession = 'admin';
-
-        return this.studentService.importStudentsFromExcel(data);
-    }
+    return await this.studentService.importStudentsFromExcel(data);
+  }
 }

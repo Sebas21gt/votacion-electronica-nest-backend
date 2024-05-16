@@ -11,7 +11,6 @@ import {
 import { UserService } from './user.service';
 import { UserCreateDto } from '../domain/dto/user-create.dto';
 import { UserEntity } from '../domain/model/user.entity';
-import { UserUpdateDto } from '../domain/dto/user-update.dto';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 
 @Controller('/users')
@@ -23,7 +22,7 @@ export class UserController {
   async createUser(
     @Body() userDto: UserCreateDto,
   ): Promise<UserEntity | object> {
-    return await this.userService.userCreate(userDto, 'Admin');
+    return await this.userService.userCreate(userDto);
   }
 
   @Put('/reset-password/:userId')

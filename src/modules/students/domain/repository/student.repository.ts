@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, getManager } from 'typeorm';
 import { StudentEntity } from '../model/student.entity';
 import { UserEntity } from 'src/modules/users/domain/model/user.entity';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -17,7 +17,6 @@ export class StudentRepository extends Repository<StudentEntity> {
     studentDto: StudentCreateDto,
   ): Promise<StudentEntity> {
     const user = new UserEntity();
-    user.creationUser = 'admin';
     user.username = studentDto.collegeNumber;
     user.password = await bcrypt.hash(studentDto.ciNumber, 10);
 
@@ -26,13 +25,12 @@ export class StudentRepository extends Repository<StudentEntity> {
     student.collegeNumber = studentDto.collegeNumber;
     student.ciNumber = studentDto.ciNumber;
     student.isHabilitated = studentDto.isHabilitated;
-    student.creationUser = 'admin';
-    student.userId = user;
+    student.user = user;
 
     try {
-      await this.manager.transaction(async (transactionalEntityManager) => {
+      await getManager().transaction(async (transactionalEntityManager) => {
         await transactionalEntityManager.save(user);
-        student.userId = user;
+        student.user = user;
         await transactionalEntityManager.save(student);
       });
       return student;
@@ -44,9 +42,16 @@ export class StudentRepository extends Repository<StudentEntity> {
     }
   }
 
-  async findAllStudents(): Promise<StudentEntity[]> {
+  async findAllStudents(): Promise<any[]> {
     try {
-      return await this.find({ relations: ['userId', 'careers'] });
+      const students = await this.find({
+        relations: ['careers'], // Ensure 'careers' is included here
+      });
+
+      return students.map((student) => ({
+        ...student,
+        careers: student.careers.map((career) => career.name), // Extracting career names
+      }));
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException(
@@ -58,7 +63,7 @@ export class StudentRepository extends Repository<StudentEntity> {
   async findOneStudent(id: string): Promise<StudentEntity> {
     try {
       const student = await this.findOne(id, {
-        relations: ['userId', 'careers'],
+        relations: ['user', 'careers'],
       });
       if (!student) {
         throw new InternalServerErrorException('Student not found.');
@@ -75,7 +80,7 @@ export class StudentRepository extends Repository<StudentEntity> {
     studentDto: StudentUpdateDto,
   ): Promise<StudentEntity> {
     try {
-      const student = await this.findOne(id, { relations: ['userId'] });
+      const student = await this.findOne(id, { relations: ['user'] });
       if (!student) {
         throw new InternalServerErrorException('Student not found.');
       }
@@ -95,7 +100,7 @@ export class StudentRepository extends Repository<StudentEntity> {
       if (studentDto.userId !== undefined) {
         const user = new UserEntity();
         user.id = studentDto.userId;
-        student.userId = user;
+        student.user = user;
       }
 
       await this.save(student);
@@ -121,7 +126,7 @@ export class StudentRepository extends Repository<StudentEntity> {
   async importStudentsFromExcel(data: any): Promise<StudentEntity[]> {
     const errorStudents: StudentEntity[] = [];
 
-    await this.manager.transaction(async (transactionalEntityManager) => {
+    await getManager().transaction(async (transactionalEntityManager) => {
       const role = await transactionalEntityManager.findOne(RoleEntity, {
         where: { id: RolesEnum.STUDENT },
       });
@@ -138,7 +143,6 @@ export class StudentRepository extends Repository<StudentEntity> {
           user = transactionalEntityManager.create(UserEntity, {
             username: item.CI,
             password: item.CI,
-            creationUser: 'admin',
             roles: [role],
           });
           await transactionalEntityManager.save(user);
@@ -155,8 +159,7 @@ export class StudentRepository extends Repository<StudentEntity> {
             collegeNumber: item.CU,
             ciNumber: item.CI,
             isHabilitated: true,
-            creationUser: 'admin',
-            userId: user,
+            user: user,
           });
           student.careers = [];
         }

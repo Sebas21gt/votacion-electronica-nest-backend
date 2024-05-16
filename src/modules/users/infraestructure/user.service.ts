@@ -6,6 +6,8 @@ import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 import { MessageEnum } from 'src/modules/shared/enums/message.enum';
 import { UserEntity } from '../domain/model/user.entity';
+import { Roles } from 'src/modules/shared/decorators/roles.decorator';
+import { RolesEnum } from 'src/modules/shared/enums/roles.enum';
 
 @Injectable()
 export class UserService {
@@ -16,7 +18,6 @@ export class UserService {
 
   async userCreate(
     userCreateDto: UserCreateDto,
-    username: string,
   ): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { username: userCreateDto.username, status: StatusEnum.Active },
@@ -26,7 +27,7 @@ export class UserService {
       return new MessageResponse(HttpStatus.OK, MessageEnum.USER_EXIST, null);
     }
 
-    return this.userRepository.createUser(userCreateDto, username);
+    return this.userRepository.createUser(userCreateDto);
   }
 
   async resetPassword(

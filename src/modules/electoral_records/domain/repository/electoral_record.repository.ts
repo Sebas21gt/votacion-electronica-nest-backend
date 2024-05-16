@@ -5,6 +5,7 @@ import { ElectoralRecordEntity } from '../model/electoral_record.entity';
 import { ElectoralRecordCreateDto } from '../dto/electoral_record_create.dto';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 import { MessageEnum } from 'src/modules/shared/enums/message.enum';
+import { ElectoralRecordUpdateDto } from '../dto/electoral_record_update.dto';
 
 @Injectable()
 export class ElectoralRecordRepository {
@@ -15,11 +16,8 @@ export class ElectoralRecordRepository {
 
   async createElectoralRecord(
     dto: ElectoralRecordCreateDto,
-    creator: string,
   ): Promise<MessageResponse | ElectoralRecordEntity> {
     const entity = this.repository.create(dto);
-    entity.creationUser = creator;
-    // entity.updateUser = creator;
 
     try {
       await this.repository.save(entity);
@@ -36,7 +34,7 @@ export class ElectoralRecordRepository {
 
   async updateElectoralRecord(
     id: string,
-    dto: ElectoralRecordCreateDto,
+    dto: ElectoralRecordUpdateDto,
     updater: string,
   ): Promise<MessageResponse | ElectoralRecordEntity> {
     const entity = await this.repository.findOne({ where: { id } });
@@ -84,5 +82,15 @@ export class ElectoralRecordRepository {
       MessageEnum.USER_DELETE,
       'Electoral record successfully deleted.',
     );
+  }
+
+  async findOne(options: {
+    where: { id: string };
+  }): Promise<ElectoralRecordEntity> {
+    return this.repository.findOne(options);
+  }
+
+  async findAll(): Promise<ElectoralRecordEntity[]> {
+    return this.repository.find();
   }
 }

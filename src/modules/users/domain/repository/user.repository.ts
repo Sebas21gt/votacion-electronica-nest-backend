@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, getManager } from 'typeorm';
 import { UserCreateDto } from '../dto/user-create.dto';
 import { UserEntity } from '../model/user.entity';
 import { HttpStatus, InternalServerErrorException } from '@nestjs/common';
@@ -6,29 +6,41 @@ import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 import { MessageEnum } from 'src/modules/shared/enums/message.enum';
 import { hash, compare } from 'bcryptjs';
+import { RolesEnum } from 'src/modules/shared/enums/roles.enum';
+import { RoleEntity } from 'src/modules/roles/domain/model/role.entity';
 
 @EntityRepository(UserEntity)
 export class UserRepository extends Repository<UserEntity> {
-  async createUser(userDto: UserCreateDto, username: string): Promise<any> {
-    const user = new UserEntity();
-    Object.assign(user, userDto);
+  async createUser(
+    userDto: UserCreateDto,
+  ): Promise<UserEntity | MessageResponse> {
+    const user = this.create(userDto);
+    user.username = user.username.toLowerCase();
+    user.status = StatusEnum.Active;
+    user.password = await hash(user.password, 10);
 
-    try {
-      user.username = user.username.toLowerCase();
-      user.status = StatusEnum.Active;
-      user.creationUser = username;
-      await user.save();
-    } catch (e) {
-      console.log(e);
-      return new MessageResponse(
-        HttpStatus.NOT_FOUND,
-        MessageEnum.ENTITY_ERROR_CREATE,
-        null,
-      );
+    const role = await getManager().findOne(RoleEntity, {
+      where: { id: RolesEnum.STUDENT },
+    });
+
+    if (!role) {
+      throw new Error('Role not found for students.');
     }
 
-    delete user.password;
-    return user;
+    user.roles = [role];
+
+    try {
+      await this.save(user);
+      delete user.password;
+      return user;
+    } catch (e) {
+      console.error('Failed to create user: ' + e.message);
+      return new MessageResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        MessageEnum.ENTITY_ERROR_CREATE,
+        'Failed to create user.',
+      );
+    }
   }
 
   async resetPassword(

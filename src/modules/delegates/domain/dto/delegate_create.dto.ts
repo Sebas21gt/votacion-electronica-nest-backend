@@ -1,15 +1,15 @@
-import { IsUUID, IsOptional } from 'class-validator';
+import { IsUUID, IsNotEmpty } from 'class-validator';
 
-export class DelegateUpdateDto {
-  @IsOptional()
+export class DelegateCreateDto {
+  @IsNotEmpty({ message: 'Polling table id is required'})
   @IsUUID()
   readonly pollingTableId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  readonly studentId?: string;
-
-  @IsOptional()
+  
+  @IsNotEmpty({ message: 'Student front id is required'})
   @IsUUID()
   readonly studentFrontId?: string;
+
+  @IsNotEmpty({ message: 'Student back id is required'})
+  @IsUUID()
+  readonly studentId?: string;
 }

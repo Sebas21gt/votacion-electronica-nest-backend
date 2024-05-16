@@ -16,7 +16,6 @@ export class CareerRepository extends Repository<CareerEntity> {
     const career = new CareerEntity();
     career.name = careerDto.name;
     career.faculty = { id: careerDto.facultyId } as any;
-    career.creationUser = 'admin';
 
     try {
       return await this.save(career);

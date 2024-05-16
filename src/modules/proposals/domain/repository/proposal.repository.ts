@@ -51,7 +51,6 @@ export class ProposalsRepository extends Repository<ProposalsEntity> {
   ): Promise<ProposalsEntity | MessageResponse> {
     try {
       const proposal = this.create(dto);
-      proposal.creationUser = 'admin';
       return await this.save(proposal);
     } catch (error) {
       console.error(error);
