@@ -16,9 +16,6 @@ export class ElectoralConfigurationCreateDto {
   @IsInt()
   readonly numberTableElections: number;
 
-  // @IsNotEmpty()
-  // @IsUUID()
-  // readonly careersId: string;
   @IsArray()
   @ArrayNotEmpty()
   @IsUUID("4", { each: true })

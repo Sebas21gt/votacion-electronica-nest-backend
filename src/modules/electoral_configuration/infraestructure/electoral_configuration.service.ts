@@ -22,4 +22,8 @@ export class ElectoralConfigurationService {
   findOne(id: string) {
     return this.electoralConfigurationRepo.getElectoralConfiguration(id);
   }
+
+  findAll() {
+    return this.electoralConfigurationRepo.getAllElectoralConfigurations();
+  }
 }

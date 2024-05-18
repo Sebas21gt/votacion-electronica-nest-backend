@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsBoolean, IsInt, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsBoolean, IsInt, IsUUID, IsDate } from 'class-validator';
 
 export class PollingTableCreateDto {
   @IsNotEmpty()
@@ -12,4 +12,9 @@ export class PollingTableCreateDto {
   @IsNotEmpty()
   @IsUUID()
   readonly electoralConfigurationId: string;
+
+  @IsNotEmpty()
+  @IsDate()
+  readonly dateOpen: Date;
+
 }

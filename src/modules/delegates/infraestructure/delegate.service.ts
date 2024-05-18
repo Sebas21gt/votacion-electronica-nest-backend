@@ -17,12 +17,12 @@ export class DelegatesService {
         return result;
     }
 
-    async findAll(): Promise<DelegatesEntity[]> {
-        return await this.delegatesRepository.find();
+    async findAllDelegates(): Promise<DelegatesEntity[]> {
+        return await this.delegatesRepository.findAllDelegates();
     }
 
     async findOne(id: string): Promise<DelegatesEntity> {
-        return await this.delegatesRepository.findOne(id);
+        return await this.delegatesRepository.findDelegateById(id);
     }
 
     async update(id: string, delegate: Partial<DelegatesEntity>): Promise<DelegatesEntity> {
@@ -31,6 +31,6 @@ export class DelegatesService {
     }
 
     async remove(id: string): Promise<void> {
-        await this.delegatesRepository.delete(id);
+        await this.delegatesRepository.deleteDelegate(id);
     }
 }

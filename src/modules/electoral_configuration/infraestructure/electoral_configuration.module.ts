@@ -10,6 +10,7 @@ import { ElectoralConfigurationService } from './electoral_configuration.service
 @Module({
   imports: [TypeOrmModule.forFeature([ElectoralConfigurationEntity, CareerEntity])],
   controllers: [ElectoralConfigurationController],
-  providers: [ElectoralConfigurationService, ElectoralConfigurationRepository]
+  providers: [ElectoralConfigurationService, ElectoralConfigurationRepository],
+  exports: [ElectoralConfigurationService],
 })
 export class ElectoralConfigurationModule {}

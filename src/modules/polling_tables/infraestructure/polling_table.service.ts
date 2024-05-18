@@ -37,7 +37,7 @@ export class PollingTablesService {
         return this.pollingTablesRepository.save(pollingTable);
     }
 
-    async remove(id: string): Promise<void> {
-        await this.pollingTablesRepository.delete(id);
+    async deletePollingTable(id: string): Promise<void> {
+        await this.pollingTablesRepository.deletePollingTable(id);
     }
 }

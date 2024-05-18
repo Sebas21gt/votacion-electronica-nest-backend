@@ -1,8 +1,6 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/users/infraestructure/user.module';
 import { StudentModule } from './modules/students/infraestructure/student.module';
 import { FacultyModule } from './modules/faculties/infraestructure/faculty.module';
@@ -20,6 +18,8 @@ import { PollingTablesModule } from './modules/polling_tables/infraestructure/po
 import { ElectoralRecordSignatureModule } from './modules/electoral_records_signature/infraestructure/electoral_record_signature.module';
 import { VotesModule } from './modules/votes/infraestructure/vote.module';
 import { ResultsModule } from './modules/results/infraestructure/results.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -38,22 +38,22 @@ const ENV = process.env.NODE_ENV;
       ],
       subscribers: [EntitySubscriber]
     }),
-    AuthModule,
-    CareerModule,
-    DelegatesModule, //! Falta agregar al user el Rol
-    ElectoralConfigurationModule,
-    ElectoralRecordModule,
-    ElectoralRecordSignatureModule,
-    FacultyModule,
-    //HashesModule,
-    PollingTablesModule,
-    ProposalsModule,
-    ResultsModule,
+    AuthModule, //! Falta el logout
+    CareerModule, //* Testeado
+    DelegatesModule, //* Testeado
+    ElectoralConfigurationModule, //* Testeado
+    ElectoralRecordModule, //* Testeado
+    ElectoralRecordSignatureModule, //* Testeado
+    FacultyModule, //* Testeado
+    // HashesModule,
+    PollingTablesModule, //! Falta el delete
+    ProposalsModule, //* Testeado
+    ResultsModule, //! Falta testear
     //RolesModule,
     StudentPositionModule, //! Falta agregar al user el Rol
-    StudentModule,
-    StudentsFrontModule,
-    UserModule,
+    StudentModule, //* Testeado
+    StudentsFrontModule, //! Falta el delete
+    UserModule, //* Testeado
     VotesModule,
   ],
   controllers: [AppController],

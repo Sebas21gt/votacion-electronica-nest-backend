@@ -7,12 +7,31 @@ import { MessageEnum } from 'src/modules/shared/enums/message.enum';
 import { ProposalCreateDto } from '../dto/proposal_create.dto';
 import { ProposalUpdateDto } from '../dto/proposal_update.dto';
 import { ProposalsEntity } from '../model/proposal.entity';
+import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 
 @EntityRepository(ProposalsEntity)
 export class ProposalsRepository extends Repository<ProposalsEntity> {
   async findAllProposals(): Promise<ProposalsEntity[] | MessageResponse> {
     try {
       return await this.find();
+    } catch (error) {
+      console.error(error);
+      return new MessageResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        MessageEnum.ENTITY_ERROR_RETRIEVE,
+        'Failed to retrieve proposals.',
+      );
+    }
+  }
+
+  async findProposalsByStudentFront(
+    studentFrontId: string,
+  ): Promise<ProposalsEntity[] | MessageResponse> {
+    try {
+      return await this.find({
+        where: { studentFront: { id: studentFrontId }, status: StatusEnum.Active },
+        relations: ['studentFront']
+      });
     } catch (error) {
       console.error(error);
       return new MessageResponse(

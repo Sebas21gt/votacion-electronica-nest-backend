@@ -17,7 +17,7 @@ export class UserRepository extends Repository<UserEntity> {
     const user = this.create(userDto);
     user.username = user.username.toLowerCase();
     user.status = StatusEnum.Active;
-    user.password = await hash(user.password, 10);
+    user.password = user.password;
 
     const role = await getManager().findOne(RoleEntity, {
       where: { id: RolesEnum.STUDENT },

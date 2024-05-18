@@ -15,6 +15,10 @@ export class ProposalsService {
         return this.proposalsRepository.findAllProposals();
     }
 
+    findAllByStudentFront(studentFrontId: string) {
+        return this.proposalsRepository.findProposalsByStudentFront(studentFrontId);
+    }
+
     findOne(id: string) {
         return this.proposalsRepository.findOneProposal(id);
     }

@@ -3,14 +3,18 @@ import { EntityRepository, Repository } from 'typeorm';
 import { ElectoralRecordSignatureEntity } from '../model/electoral_record_signature.entity';
 import { ElectoralRecordSignatureCreateDto } from '../dto/electoral_record_signature_create.dto';
 import { ElectoralRecordSignatureUpdateDto } from '../dto/electoral_record_signature_update.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DelegatesEntity } from 'src/modules/delegates/domain/model/delegate.entity';
+import { DelegatesRepository } from 'src/modules/delegates/domain/repository/delegate.repository';
 
 @EntityRepository(ElectoralRecordSignatureEntity)
 export class ElectoralRecordSignatureRepository extends Repository<ElectoralRecordSignatureEntity> {
-
-  async createSignature(dto: ElectoralRecordSignatureCreateDto): Promise<ElectoralRecordSignatureEntity> {
+  async createSignature(
+    dto: ElectoralRecordSignatureCreateDto,
+  ): Promise<ElectoralRecordSignatureEntity> {
     const signature = new ElectoralRecordSignatureEntity();
-    signature.electoralRecord = { id: dto.electoralRecordId } as any;
-    signature.delegate = { id: dto.delegateId } as any;
+    signature.electoralRecordId = { id: dto.electoralRecordId } as any;
+    signature.delegateId = { id: dto.delegateId } as any;
     signature.signature = Buffer.from(dto.signature, 'base64');
 
     try {
@@ -31,7 +35,9 @@ export class ElectoralRecordSignatureRepository extends Repository<ElectoralReco
 
   async findSignatureById(id: string): Promise<ElectoralRecordSignatureEntity> {
     try {
-      const signature = await this.findOne(id, { relations: ['electoralRecord', 'delegate'] });
+      const signature = await this.findOne(id, {
+        relations: ['electoralRecord', 'delegate'],
+      });
       if (!signature) {
         throw new Error('Signature not found');
       }
@@ -41,11 +47,14 @@ export class ElectoralRecordSignatureRepository extends Repository<ElectoralReco
     }
   }
 
-  async updateSignature(id: string, dto: ElectoralRecordSignatureUpdateDto): Promise<ElectoralRecordSignatureEntity> {
+  async updateSignature(
+    id: string,
+    dto: ElectoralRecordSignatureUpdateDto,
+  ): Promise<ElectoralRecordSignatureEntity> {
     const signature = await this.preload({
       id: id,
       ...dto,
-      signature: Buffer.from(dto.signature, 'base64')
+      signature: Buffer.from(dto.signature, 'base64'),
     });
     if (!signature) {
       throw new Error('Signature not found');

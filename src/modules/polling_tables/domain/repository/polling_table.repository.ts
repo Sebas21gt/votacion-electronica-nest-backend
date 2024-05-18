@@ -3,6 +3,7 @@ import { EntityRepository, Repository } from 'typeorm';
 import { PollingTableEntity } from '../model/polling_table.entity';
 import { PollingTableCreateDto } from '../dto/polling_table_create.dto';
 import { PollingTableUpdateDto } from '../dto/polling_table_update.dto';
+import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 
 @EntityRepository(PollingTableEntity)
 export class PollingTablesRepository extends Repository<PollingTableEntity> {
@@ -53,10 +54,9 @@ export class PollingTablesRepository extends Repository<PollingTableEntity> {
 
   async deletePollingTable(id: string): Promise<void> {
     try {
-      const result = await this.delete(id);
-      if (result.affected === 0) {
-        throw new Error('No polling table found to delete');
-      }
+      const result = await this.findOne(id);
+      result.status = StatusEnum.Deleted;
+      await this.save(result);
     } catch (error) {
       throw new Error('Failed to delete polling table: ' + error.message);
     }

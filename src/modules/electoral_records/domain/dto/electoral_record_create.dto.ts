@@ -4,22 +4,24 @@ import {
   IsInt,
   MaxLength,
   IsString,
+  IsNotEmpty,
 } from 'class-validator';
 
 export class ElectoralRecordCreateDto {
-  @IsOptional()
+  @IsNotEmpty()
   @IsDate()
   readonly openDate?: Date;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsDate()
   readonly closeDate?: Date;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @MaxLength(1000)
   readonly observation?: string;
 
+  @IsNotEmpty()
   @IsInt()
   readonly votesNull: number;
 }

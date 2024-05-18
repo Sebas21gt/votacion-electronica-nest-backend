@@ -15,6 +15,7 @@ export class CareerRepository extends Repository<CareerEntity> {
   ): Promise<CareerEntity | MessageResponse> {
     const career = new CareerEntity();
     career.name = careerDto.name;
+    career.collegeId = careerDto.collegeId;
     career.faculty = { id: careerDto.facultyId } as any;
 
     try {

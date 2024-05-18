@@ -23,14 +23,12 @@ export class AuthenticationService {
       where: { username },
       relations: ['roles'],
     });
-    console.log(user);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const isMatch = await compare(password, user.password);
-    console.log(isMatch);
     if (!isMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -100,7 +98,7 @@ export class AuthenticationService {
   buildUserResponseLogout(user: UserEntity): any {
     return {
       ...user,
-      token: null,      
+      token: null, 
     };
   }
 }

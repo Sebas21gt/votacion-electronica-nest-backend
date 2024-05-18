@@ -7,9 +7,7 @@ export class JwtHelper {
     token = token.replace('Bearer', '').trim();
     try {
       const decoded = jwt.decode(token);
-      console.log("Decoded: ",decoded.roles);
       const value = decoded ? decoded : null;
-      console.log("Helper: ", value);
       return value ? value.roles : null;
     } catch (error) {
       throw new Error('no get roles');
