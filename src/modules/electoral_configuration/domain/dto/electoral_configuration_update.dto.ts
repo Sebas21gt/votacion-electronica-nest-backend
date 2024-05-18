@@ -17,7 +17,7 @@ export class ElectoralConfigurationUpdateDto {
   readonly numberTableElections?: number;
 
   @IsArray()
-  @ArrayNotEmpty()
+  @IsOptional()
   @IsUUID("4", { each: true })
   readonly careersId: string[];
 }

@@ -4,16 +4,19 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('polling_tables', { schema: 'voting' })
 export class PollingTableEntity extends BaseTableEntity {
-  @Column()
+  @Column({ name: 'number_table'})
   numberTable!: number;
 
-  @Column()
+  @Column({ name: 'is_open'})
   isOpen!: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'uuid',  name: 'electoral_configuration_id'})
+  electoralConfigurationId!: string;
+
+  @Column({ type: 'timestamp', nullable: true, name: 'date_open'})
   dateOpen!: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'date_closed'})
   dateClosed!: Date;
 
   @ManyToOne(

@@ -35,7 +35,6 @@ export class ElectoralRecordRepository {
   async updateElectoralRecord(
     id: string,
     dto: ElectoralRecordUpdateDto,
-    updater: string,
   ): Promise<MessageResponse | ElectoralRecordEntity> {
     const entity = await this.repository.findOne({ where: { id } });
     if (!entity) {
@@ -45,7 +44,7 @@ export class ElectoralRecordRepository {
         'Electoral record not found.',
       );
     }
-    this.repository.merge(entity, dto, { updateUser: updater });
+    this.repository.merge(entity, dto);
     try {
       await this.repository.save(entity);
     } catch (e) {
@@ -90,7 +89,7 @@ export class ElectoralRecordRepository {
     return this.repository.findOne(options);
   }
 
-  async findAll(): Promise<ElectoralRecordEntity[]> {
+  async findAllElectoralRecords(): Promise<ElectoralRecordEntity[]> {
     return this.repository.find();
   }
 }

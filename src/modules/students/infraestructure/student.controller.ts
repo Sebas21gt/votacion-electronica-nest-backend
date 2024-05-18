@@ -32,15 +32,15 @@ export class StudentController {
     return this.studentService.createStudentWithUser(studentCreateDto);
   }
 
-  // @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE,  RolesEnum.DELEGATE)
-  // @UseGuards(AuthGuard, RoleGuard)
+  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE,  RolesEnum.DELEGATE, RolesEnum.STUDENT)
+  @UseGuards(AuthGuard, RoleGuard)
   @Get('/get-students')
   async findAllStudents() {
     const students = await this.studentService.findAllStudents();
     return students;
   }
 
-  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE)
+  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE, RolesEnum.STUDENT)
   @UseGuards(AuthGuard, RoleGuard)
   @Get('/get-student/:id')
   findStudentById(@Param('id') id: string) {

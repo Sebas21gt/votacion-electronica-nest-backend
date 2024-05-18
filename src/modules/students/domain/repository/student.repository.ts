@@ -17,8 +17,8 @@ export class StudentRepository extends Repository<StudentEntity> {
     studentDto: StudentCreateDto,
   ): Promise<StudentEntity> {
     const user = new UserEntity();
-    user.username = studentDto.collegeNumber;
-    user.password = await bcrypt.hash(studentDto.ciNumber, 10);
+    user.username = studentDto.ciNumber;
+    user.password = studentDto.ciNumber;
 
     const student = new StudentEntity();
     student.fullname = studentDto.fullname;
@@ -26,6 +26,16 @@ export class StudentRepository extends Repository<StudentEntity> {
     student.ciNumber = studentDto.ciNumber;
     student.isHabilitated = studentDto.isHabilitated;
     student.user = user;
+
+    const role = await getManager().findOne(RoleEntity, {
+      where: { id: RolesEnum.STUDENT },
+    });
+
+    if (!role) {
+      throw new Error('Role not found for students.');
+    }
+
+    user.roles = [role];
 
     try {
       await getManager().transaction(async (transactionalEntityManager) => {
@@ -45,7 +55,7 @@ export class StudentRepository extends Repository<StudentEntity> {
   async findAllStudents(): Promise<any[]> {
     try {
       const students = await this.find({
-        relations: ['careers'], // Ensure 'careers' is included here
+        relations: ['careers'],
       });
 
       return students.map((student) => ({

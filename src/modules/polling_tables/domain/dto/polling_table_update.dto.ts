@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsInt } from 'class-validator';
+import { IsBoolean, IsOptional, IsInt, IsDate } from 'class-validator';
 
 export class PollingTableUpdateDto {
   @IsOptional()
@@ -8,4 +8,12 @@ export class PollingTableUpdateDto {
   @IsOptional()
   @IsBoolean()
   readonly isOpen?: boolean;
+
+  @IsOptional()
+  @IsDate()
+  readonly dateOpen?: Date;
+
+  @IsOptional()
+  @IsDate()
+  readonly dateClosed?: Date;
 }

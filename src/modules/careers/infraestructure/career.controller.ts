@@ -26,11 +26,15 @@ import { Roles } from 'src/modules/shared/decorators/roles.decorator';
 export class CareerController {
   constructor(private careerService: CareerService) {}
 
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Get('/get-careers')
   async getAllCareers(): Promise<CareerEntity[] | MessageResponse> {
     return await this.careerService.findAll();
   }
 
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Get('/get-career/:id')
   async getCareerById(
     @Param('id') id: string,
@@ -38,16 +42,22 @@ export class CareerController {
     return await this.careerService.findOne(id);
   }
 
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Get('by-faculty/:facultyId')
   getCareersByFaculty(@Param('facultyId') facultyId: string) {
     return this.careerService.findCareersByFaculty(facultyId);
   }
 
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Post('/create-career')
   async createCareer(@Body() careerDto: CareerCreateDto) {
     return this.careerService.create(careerDto);
   }
 
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Put('/update-career/:id')
   async updateCareer(
     @Param('id') id: string,

@@ -8,7 +8,7 @@ import { DelegatesController } from './delegate.controller';
 
 @Module({
     imports: [TypeOrmModule.forFeature([DelegatesEntity,DelegatesRepository])],
-    providers: [DelegatesService, DelegatesRepository],
+    providers: [DelegatesService],
     controllers: [DelegatesController],
     exports: [DelegatesService],
 })

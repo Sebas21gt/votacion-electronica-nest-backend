@@ -12,8 +12,8 @@ export class ElectoralRecordService {
     return this.electoralRecordRepo.createElectoralRecord(dto);
   }
 
-  update(id: string, dto: ElectoralRecordUpdateDto, updater: string) {
-    return this.electoralRecordRepo.updateElectoralRecord(id, dto, updater);
+  update(id: string, dto: ElectoralRecordUpdateDto) {
+    return this.electoralRecordRepo.updateElectoralRecord(id, dto);
   }
 
   delete(id: string) {
@@ -22,5 +22,9 @@ export class ElectoralRecordService {
 
   findOne(id: string) {
     return this.electoralRecordRepo.findOne({ where: { id } });
+  }
+
+  findAll() {
+    return this.electoralRecordRepo.findAllElectoralRecords();
   }
 }

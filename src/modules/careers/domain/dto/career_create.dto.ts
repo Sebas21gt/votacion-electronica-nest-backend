@@ -9,4 +9,8 @@ export class CareerCreateDto {
   @IsNotEmpty()
   @IsUUID()
   readonly facultyId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly collegeId: string;
 }

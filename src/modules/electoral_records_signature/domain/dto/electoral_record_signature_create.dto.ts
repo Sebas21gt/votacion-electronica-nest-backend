@@ -3,13 +3,13 @@ import { IsNotEmpty, IsUUID, IsString } from 'class-validator';
 export class ElectoralRecordSignatureCreateDto {
   @IsNotEmpty()
   @IsUUID()
-  readonly electoralRecordId: string;
+  readonly electoralRecordId?: string;
 
   @IsNotEmpty()
   @IsUUID()
-  readonly delegateId: string;
+  readonly delegateId?: string;
 
   @IsNotEmpty()
   @IsString()
-  readonly signature: string;
+  readonly signature?: string;
 }
