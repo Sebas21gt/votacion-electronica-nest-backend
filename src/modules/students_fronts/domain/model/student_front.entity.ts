@@ -4,7 +4,10 @@ import { Entity, Column } from 'typeorm';
 @Entity('students_fronts', { schema: 'voting' })
 export class StudentsFrontEntity extends BaseTableEntity {
   @Column({ length: 120 })
-  name!: string;
+  name: string;
+
+  @Column({ length: 120})
+  acronym: string;
 
   @Column({ type: 'bytea', nullable: true })
   logo!: Buffer;

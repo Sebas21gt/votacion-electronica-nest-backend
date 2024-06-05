@@ -21,35 +21,35 @@ export class StudentsFrontController {
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE, RolesEnum.STUDENT)
   @UseGuards(AuthGuard, RoleGuard)
   @Get('/all')
-  findAll() {
-    return this.studentsFrontService.findAll();
+  async findAll() {
+    return await this.studentsFrontService.findAll();
   }
 
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE, RolesEnum.STUDENT)
   @UseGuards(AuthGuard, RoleGuard)
   @Get('/get/:id')
-  findOne(@Param('id') id: string) {
-    return this.studentsFrontService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    return await this.studentsFrontService.findOne(id);
   }
 
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE)
   @UseGuards(AuthGuard, RoleGuard)
   @Post('/create')
-  create(@Body() createDto: any) {
-    return this.studentsFrontService.create(createDto);
+  async create(@Body() createDto: any) {
+    return await this.studentsFrontService.create(createDto);
   }
 
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE)
   @UseGuards(AuthGuard, RoleGuard)
   @Put('/update/:id')
-  update(@Param('id') id: string, @Body() updateDto: any) {
-    return this.studentsFrontService.update(id, updateDto);
+  async update(@Param('id') id: string, @Body() updateDto: any) {
+    return await this.studentsFrontService.update(id, updateDto);
   }
 
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE)
   @UseGuards(AuthGuard, RoleGuard)
   @Delete('/delete/:id')
-  remove(@Param('id') id: string) {
-    return this.studentsFrontService.remove(id);
+  async remove(@Param('id') id: string) {
+    return await this.studentsFrontService.remove(id);
   }
 }

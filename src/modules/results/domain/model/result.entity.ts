@@ -8,6 +8,12 @@ export class ResultsEntity extends BaseTableEntity {
   @Column()
   votes!: number;
 
+  @Column({ name: 'electoral_record_id' })
+  electoralRecordId!: string;
+
+  @Column({ name: 'student_front_id' })
+  studentFrontId!: string;
+
   @ManyToOne(() => ElectoralRecordEntity)
   @JoinColumn({ name: 'electoral_record_id' })
   electoralRecord!: ElectoralRecordEntity;

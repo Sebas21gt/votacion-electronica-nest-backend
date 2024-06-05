@@ -46,11 +46,11 @@ const ENV = process.env.NODE_ENV;
     ElectoralRecordSignatureModule, //* Testeado
     FacultyModule, //* Testeado
     // HashesModule,
-    PollingTablesModule, //! Falta el delete
+    PollingTablesModule, //* Testeado
     ProposalsModule, //* Testeado
     ResultsModule, //! Falta testear
     //RolesModule,
-    StudentPositionModule, //! Falta agregar al user el Rol
+    StudentPositionModule, //* Testeado
     StudentModule, //* Testeado
     StudentsFrontModule, //! Falta el delete
     UserModule, //* Testeado

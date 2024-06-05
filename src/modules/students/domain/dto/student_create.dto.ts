@@ -21,8 +21,4 @@ export class StudentCreateDto {
   @IsString()
   @MaxLength(20)
   readonly ciNumber: string;
-
-  @IsNotEmpty()
-  @IsBoolean()
-  readonly isHabilitated: boolean;
 }

@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { StudentService } from './Student.service';
 import { StudentCreateDto } from '../domain/dto/student_create.dto';
@@ -45,6 +46,16 @@ export class StudentController {
   @Get('/get-student/:id')
   findStudentById(@Param('id') id: string) {
     return this.studentService.findStudentById(id);
+  }
+
+  @Roles(RolesEnum.DELEGATE, RolesEnum.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
+  @Get('/enable-student/:id')
+  async enableStudent(
+    @Req() req,
+    @Param('id') id: string) {
+      const auth = req.headers.authorization;
+    return await this.studentService.enableStudent(id, auth);
   }
 
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE)

@@ -4,6 +4,7 @@ import { VotesRepository } from '../domain/repository/vote.repository';
 import { VoteCreateDto } from '../domain/dto/vote_create.dto';
 import { VotesEntity } from '../domain/model/vote.entity';
 import { VoteUpdateDto } from '../domain/dto/vote_update.dto';
+import { JwtHelper } from 'src/modules/shared/helpers/jwt.helpers';
 
 @Injectable()
 export class VotesService {
@@ -12,8 +13,9 @@ export class VotesService {
         private votesRepository: VotesRepository,
     ) {}
 
-    async createVote(dto: VoteCreateDto): Promise<VotesEntity> {
-        return await this.votesRepository.createVote(dto);
+    async createVote(dto: VoteCreateDto, auth: string): Promise<boolean> {
+        const userId = await JwtHelper.getUserIdJWT(auth);
+        return await this.votesRepository.createVote(dto, userId);
     }
 
     async findAllVotes(): Promise<VotesEntity[]> {
@@ -22,10 +24,6 @@ export class VotesService {
 
     async findVoteById(id: string): Promise<VotesEntity> {
         return await this.votesRepository.findVoteById(id);
-    }
-
-    async updateVote(id: string, dto: VoteUpdateDto): Promise<VotesEntity> {
-        return await this.votesRepository.updateVote(id, dto);
     }
 
     async deleteVote(id: string): Promise<void> {

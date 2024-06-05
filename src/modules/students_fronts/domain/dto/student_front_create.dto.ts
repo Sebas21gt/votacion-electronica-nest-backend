@@ -7,6 +7,10 @@ export class StudentsFrontCreateDto {
   readonly name: string;
 
   @IsNotEmpty()
-  @IsBoolean()
-  readonly isHabilitated: boolean;
+  @IsString()
+  readonly acronym: string;
+
+  @IsNotEmpty()
+  readonly logo: Buffer;
+
 }
