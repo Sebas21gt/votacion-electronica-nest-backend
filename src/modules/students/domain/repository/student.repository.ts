@@ -1,15 +1,18 @@
 import { EntityRepository, Repository, getManager } from 'typeorm';
 import { StudentEntity } from '../model/student.entity';
 import { UserEntity } from 'src/modules/users/domain/model/user.entity';
-import { InternalServerErrorException } from '@nestjs/common';
-import * as XLSX from 'xlsx';
-import * as bcrypt from 'bcryptjs';
+import {
+  HttpException,
+  HttpStatus,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { StudentCreateDto } from '../dto/student_create.dto';
 import { StudentUpdateDto } from '../dto/student_update.dto';
 import { RolesEnum } from 'src/modules/shared/enums/roles.enum';
 import { RoleEntity } from 'src/modules/roles/domain/model/role.entity';
 import { GlobalService } from 'src/modules/shared/global.service';
 import { CareerEntity } from 'src/modules/careers/domain/model/career.entity';
+import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 
 @EntityRepository(StudentEntity)
 export class StudentRepository extends Repository<StudentEntity> {
@@ -24,7 +27,9 @@ export class StudentRepository extends Repository<StudentEntity> {
     student.fullname = studentDto.fullname;
     student.collegeNumber = studentDto.collegeNumber;
     student.ciNumber = studentDto.ciNumber;
-    student.isHabilitated = studentDto.isHabilitated;
+    student.isHabilitated = false;
+    student.isVoted = false;
+    student.totalAuthorizations = 0;
     student.user = user;
 
     const role = await getManager().findOne(RoleEntity, {
@@ -70,15 +75,74 @@ export class StudentRepository extends Repository<StudentEntity> {
     }
   }
 
-  async findOneStudent(id: string): Promise<StudentEntity> {
+  async findOneStudent(id: string): Promise<any> {
+    const user = await this.manager.findOne(UserEntity, {
+      where: { id: id },
+    });
+
+    if (!user) {
+      throw new InternalServerErrorException('User not found.');
+    }
+
+    let student = await this.findOne({
+      where: { userId: user.id, status: StatusEnum.Active },
+      relations: ['careers'],
+    });
+
+    if (!student) {
+      throw new HttpException('Student not found.', HttpStatus.NOT_FOUND);
+    }
+
+    const signature = student.signature ? '' + student.signature : null;
+
+    student.signature = signature;
+
+    const studentDto = {
+      ...student,
+      careers: student.careers.map((career) => career.name), // Solo nombres de las carreras
+    };
+
+    return studentDto;
+  }
+
+  async enableStudent(
+    id: string,
+    totalFronts: number,
+    pollingTableId: string,
+  ): Promise<StudentEntity> {
     try {
-      const student = await this.findOne(id, {
-        relations: ['user', 'careers'],
+      const user = await this.manager.findOne(UserEntity, {
+        where: { id: id },
+      });
+
+      if (!user) {
+        throw new InternalServerErrorException('User not found.');
+      }
+
+      const student = await this.findOne({
+        userId: user.id,
+        status: StatusEnum.Active,
       });
       if (!student) {
         throw new InternalServerErrorException('Student not found.');
       }
-      return student;
+
+      if (student.isVoted) {
+        throw new InternalServerErrorException('Student already voted.');
+      }
+
+      if (totalFronts < 2) {
+        student.isHabilitated = true;
+      } else {
+        student.totalAuthorizations++;
+        if (student.totalAuthorizations === 2) {
+          student.isHabilitated = true;
+        }
+      }
+
+      student.pollingTableId = pollingTableId;
+
+      return await this.save(student);
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Failed to retrieve student.');
@@ -103,9 +167,6 @@ export class StudentRepository extends Repository<StudentEntity> {
       }
       if (studentDto.ciNumber !== undefined) {
         student.ciNumber = studentDto.ciNumber;
-      }
-      if (studentDto.isHabilitated !== undefined) {
-        student.isHabilitated = studentDto.isHabilitated;
       }
       if (studentDto.userId !== undefined) {
         const user = new UserEntity();
@@ -136,7 +197,7 @@ export class StudentRepository extends Repository<StudentEntity> {
   async importStudentsFromExcel(data: any): Promise<StudentEntity[]> {
     const errorStudents: StudentEntity[] = [];
 
-    await getManager().transaction(async (transactionalEntityManager) => {
+    await this.manager.transaction(async (transactionalEntityManager) => {
       const role = await transactionalEntityManager.findOne(RoleEntity, {
         where: { id: RolesEnum.STUDENT },
       });
@@ -159,7 +220,7 @@ export class StudentRepository extends Repository<StudentEntity> {
         }
 
         let student = await transactionalEntityManager.findOne(StudentEntity, {
-          where: { userId: user.id },
+          where: { user: user.id },
           relations: ['careers'],
         });
 
@@ -168,7 +229,9 @@ export class StudentRepository extends Repository<StudentEntity> {
             fullname: item['APELLIDOS Y NOMBRES'],
             collegeNumber: item.CU,
             ciNumber: item.CI,
-            isHabilitated: true,
+            isHabilitated: false,
+            isVoted: false,
+            totalAuthorizations: 0,
             user: user,
           });
           student.careers = [];

@@ -6,8 +6,8 @@ import {
   Injectable
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtHelper } from '../helper/jwt.helper';
 import { MessageEnum } from 'src/modules/shared/enums/message.enum';
+import { JwtHelper } from 'src/modules/shared/helpers/jwt.helpers';
 
 @Injectable()
 export class RoleGuard implements CanActivate {

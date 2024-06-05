@@ -5,10 +5,10 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('student_positions', { schema: 'voting' })
 export class StudentPositionEntity extends BaseTableEntity {
-  @Column({ length: 120 })
+  @Column({ name: 'position_name' ,length: 120 })
   positionName!: string;
 
-  @Column({ type: 'text' })
+  @Column({ name: 'position_description',type: 'text' })
   positionDescription!: string;
 
   @ManyToOne(() => StudentEntity)

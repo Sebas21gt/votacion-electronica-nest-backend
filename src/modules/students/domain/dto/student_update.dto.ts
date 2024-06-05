@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsOptional,
   IsUUID,
+  IsNumber,
 } from 'class-validator';
 
 export class StudentUpdateDto {

@@ -7,6 +7,6 @@ export class StudentsFrontUpdateDto {
   readonly name?: string;
 
   @IsOptional()
-  @IsBoolean()
-  readonly isHabilitated?: boolean;
+  @IsString()
+  readonly acronym?: string;
 }

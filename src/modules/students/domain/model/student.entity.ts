@@ -26,6 +26,24 @@ export class StudentEntity extends BaseTableEntity {
   @Column({ name: 'is_habilitated'})
   isHabilitated!: boolean;
 
+  @Column({ name: 'is_voted' })
+  isVoted: boolean;
+
+  @Column({ name: 'total_authorizations' })
+  totalAuthorizations: number;
+
+  // @Column({ type: 'bytea' })
+  // signature!: Buffer;
+
+  @Column()
+  signature!: string;
+
+  @Column({ name: 'polling_table_id' })
+  pollingTableId: string;
+
+  @Column({ name: 'user_id' })
+  userId!: string;
+
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
   user!: UserEntity;

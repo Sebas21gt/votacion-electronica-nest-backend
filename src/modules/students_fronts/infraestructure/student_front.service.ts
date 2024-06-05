@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudentsFrontRepository } from '../domain/repository/student_front.repository';
+import { ResultsRepository } from 'src/modules/results/domain/repository/result.repository';
 
 @Injectable()
 export class StudentsFrontService {
     constructor(
         @InjectRepository(StudentsFrontRepository)
-        private studentsFrontRepository: StudentsFrontRepository
+        private studentsFrontRepository: StudentsFrontRepository,
+        // private resultsRepository: ResultsRepository
     ) {}
 
     findAll() {
@@ -21,11 +23,11 @@ export class StudentsFrontService {
         return this.studentsFrontRepository.createStudentFront(createDto);
     }
 
-    update(id: string, updateDto: any) {
-        return this.studentsFrontRepository.updateStudentFront(id, updateDto);
+    async update(id: string, updateDto: any) {
+        return await this.studentsFrontRepository.updateStudentFront(id, updateDto);
     }
 
-    remove(id: string) {
-        return this.studentsFrontRepository.deleteStudentFront(id);
+    async remove(id: string) {
+        return  await this.studentsFrontRepository.deleteStudentFront(id);
     }
 }
