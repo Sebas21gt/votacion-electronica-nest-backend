@@ -7,6 +7,8 @@ import {
   Put,
   Delete,
   UseGuards,
+  Req,
+  HttpException,
 } from '@nestjs/common';
 import { ElectoralRecordService } from './electoral_record.service';
 import { ElectoralRecordCreateDto } from '../domain/dto/electoral_record_create.dto';
@@ -29,9 +31,20 @@ export class ElectoralRecordController {
 
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE)
   @UseGuards(AuthGuard, RoleGuard)
-  @Get('/get/:id')
-  findOne(@Param('id') id: string) {
-    return this.service.findOne(id);
+  @Post('/open-election')
+  openElection(@Req() req) {
+    const auth = req.headers.authorization;
+    return this.service.openElection(auth);
+  }
+
+  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE)
+  @UseGuards(AuthGuard, RoleGuard)
+  @Post('/close-election')
+  closeElection(@Req() req, @Body() body: {signature: string}){
+    const { signature } = body;
+    if(!signature) throw new HttpException('Signature is required', 400);
+    const auth = req.headers.authorization;
+    return this.service.closeElection(auth, signature);
   }
 
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE)
@@ -39,13 +52,6 @@ export class ElectoralRecordController {
   @Get('/get-all')
   findAll() {
     return this.service.findAll();
-  }
-
-  @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE)
-  @UseGuards(AuthGuard, RoleGuard)
-  @Put('/update/:id')
-  update(@Param('id') id: string, @Body() dto: ElectoralRecordUpdateDto) {
-    return this.service.update(id, dto);
   }
 
   @Roles(RolesEnum.ADMIN, RolesEnum.COMMITTEE, RolesEnum.DELEGATE)

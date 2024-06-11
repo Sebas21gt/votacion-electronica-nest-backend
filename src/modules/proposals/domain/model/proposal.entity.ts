@@ -7,6 +7,9 @@ export class ProposalsEntity extends BaseTableEntity {
   @Column({ type: 'varchar', length: 500 })
   description!: string;
 
+  @Column({ name: 'student_front_id'})
+  studentFrontId!: string;
+
   @ManyToOne(() => StudentsFrontEntity)
   @JoinColumn({ name: 'student_front_id' })
   studentFront!: StudentsFrontEntity;

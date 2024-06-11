@@ -9,8 +9,10 @@ export class StudentsFrontEntity extends BaseTableEntity {
   @Column({ length: 120})
   acronym: string;
 
-  @Column({ type: 'bytea', nullable: true })
-  logo!: Buffer;
+  // @Column({ type: 'bytea', nullable: true })
+  // logo!: Buffer;
+  @Column()
+  logo!: string;
 
   @Column({ name: 'is_habilitated' })
   isHabilitated!: boolean;

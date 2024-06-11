@@ -4,12 +4,11 @@ import { ResultsEntity } from '../model/result.entity';
 
 @EntityRepository(ResultsEntity)
 export class ResultsRepository extends Repository<ResultsEntity> {
-  
   async createResult(dto: ResultCreateDto): Promise<ResultsEntity> {
     const result = this.create({
       electoralRecord: { id: dto.electoralRecordId } as any,
       studentFront: { id: dto.studentFrontId } as any,
-      votes: dto.votes
+      votes: dto.votes,
     });
     try {
       await this.save(result);
@@ -22,7 +21,7 @@ export class ResultsRepository extends Repository<ResultsEntity> {
   async updateResult(id: string, dto: ResultCreateDto): Promise<ResultsEntity> {
     const result = await this.preload({
       id: id,
-      ...dto
+      ...dto,
     });
     if (!result) {
       throw new Error('Result not found');
@@ -35,17 +34,43 @@ export class ResultsRepository extends Repository<ResultsEntity> {
     }
   }
 
-  async findAllResults(): Promise<ResultsEntity[]> {
+  // async findAllResults(): Promise<ResultsEntity[]> {
+  //   try {
+  //     return await this.find({ relations: ['studentFront'] });
+  //   } catch (error) {
+  //     throw new Error('Failed to retrieve results: ' + error.message);
+  //   }
+  // }
+  async findAllResults(): Promise<any[]> {
     try {
-      return await this.find({ relations: ['electoralRecord', 'studentFront'] });
+      const results = await this.createQueryBuilder('result')
+        .leftJoinAndSelect('result.studentFront', 'studentFront')
+        .select([
+          'result.id',
+          'result.votes',
+          'studentFront.name',
+          'studentFront.logo',
+        ])
+        .getMany();
+
+      return results.map((result) => ({
+        ...result,
+        studentFront: {
+          name: result.studentFront.name,
+          logo: result.studentFront.logo.toString(),
+        },
+      }));
     } catch (error) {
+      console.error('Failed to retrieve results:', error);
       throw new Error('Failed to retrieve results: ' + error.message);
     }
   }
 
   async findResultById(id: string): Promise<ResultsEntity> {
     try {
-      const result = await this.findOne(id, { relations: ['electoralRecord', 'studentFront'] });
+      const result = await this.findOne(id, {
+        relations: ['electoralRecord', 'studentFront'],
+      });
       if (!result) {
         throw new Error('Result not found');
       }

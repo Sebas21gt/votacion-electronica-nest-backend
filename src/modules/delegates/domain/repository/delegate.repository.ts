@@ -73,7 +73,7 @@ export class DelegatesRepository extends Repository<DelegatesEntity> {
 
   async findAllDelegates(): Promise<any[]> {
     try {
-      return await this.createQueryBuilder('delegate')
+      const delegates =  await this.createQueryBuilder('delegate')
         .leftJoinAndSelect('delegate.student', 'student')
         .leftJoinAndSelect('delegate.pollingTable', 'pollingTable')
         .leftJoinAndSelect('delegate.studentFront', 'studentFront')
@@ -83,9 +83,19 @@ export class DelegatesRepository extends Repository<DelegatesEntity> {
           'student.ciNumber AS studentCI',
           'studentFront.name AS studentFrontName',
           'pollingTable.numberTable AS pollingTableNumber',
+          'pollingTable.id AS pollingTableId',
+          'delegate.signature as signature'
         ])
         .where('delegate.status = :status', { status: StatusEnum.Active })
         .getRawMany();
+
+        for (const delegate of delegates) {
+          if (delegate.signature) {
+            delegate.signature = Buffer.from(delegate.signature).toString('base64');
+          }
+        }
+
+        return delegates;
     } catch (error) {
       console.error('Failed to retrieve detailed delegates:', error);
       throw new Error(
@@ -94,10 +104,12 @@ export class DelegatesRepository extends Repository<DelegatesEntity> {
     }
   }
 
-  async findDelegateById(id: string): Promise<any> {
+  async findDelegateById(userId: string): Promise<any> {
     try {
       const delegate = await this.createQueryBuilder('delegate')
-        .leftJoinAndSelect('delegate.student', 'student')
+        .innerJoin('delegate.student', 'student', 'student.userId = :userId', {
+          userId,
+        })
         .leftJoinAndSelect('delegate.pollingTable', 'pollingTable')
         .leftJoinAndSelect('delegate.studentFront', 'studentFront')
         .select([
@@ -106,22 +118,29 @@ export class DelegatesRepository extends Repository<DelegatesEntity> {
           'student.ciNumber AS studentCI',
           'studentFront.name AS studentFrontName',
           'pollingTable.numberTable AS pollingTableNumber',
+          'pollingTable.id AS pollingTableId',
+          'delegate.signature as signature',
         ])
-        .where('delegate.id = :id', { id })
-        .andWhere('delegate.status = :status', { status: StatusEnum.Active })
+        .where('delegate.status = :status', { status: StatusEnum.Active })
         .getRawOne();
 
       if (!delegate) {
         return new MessageResponse(
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.NOT_FOUND,
           MessageEnum.DELEGATE_ERROR_NOT_FOUND,
-          'Failed to retrieve delegate.',
+          'Delegate not found.',
         );
       }
+      if (delegate.signature) {
+        delegate.signature = Buffer.from(delegate.signature).toString('base64');
+      }
+
       return delegate;
     } catch (error) {
-      console.error('Failed to retrieve delegate:', error);
-      throw new Error('Failed to retrieve delegate: ' + error.message);
+      console.error('Failed to retrieve delegate by userId:', error);
+      throw new Error(
+        'Failed to retrieve delegate by userId: ' + error.message,
+      );
     }
   }
 

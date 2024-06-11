@@ -10,15 +10,9 @@ export class ElectoralRecordEntity extends BaseTableEntity {
   @Column({ type: 'timestamp', nullable: true, name: 'close_date' })
   closeDate!: Date;
 
-  @Column({ type: 'varchar', length: 1000, nullable: true })
-  observation!: string;
+  @Column({ name: 'total_authorizations_open'})
+  totalAuthOpen!: number;
 
-  @Column({ default: 0, name: 'votes_null' })
-  votesNull!: number;
-
-  @OneToMany(
-    () => ElectoralRecordSignatureEntity,
-    (signature) => signature.electoralRecord,
-  )
-  signatures!: ElectoralRecordSignatureEntity[];
+  @Column({ name: 'total_authorizations_close'})
+  totalAuthClose!: number;
 }

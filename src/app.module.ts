@@ -20,6 +20,8 @@ import { VotesModule } from './modules/votes/infraestructure/vote.module';
 import { ResultsModule } from './modules/results/infraestructure/results.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { ContractModule } from './modules/eth_contracts/eth_contract.module';
+import { DataHashModule } from './modules/hashes/infraestructure/hash.module';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -45,7 +47,6 @@ const ENV = process.env.NODE_ENV;
     ElectoralRecordModule, //* Testeado
     ElectoralRecordSignatureModule, //* Testeado
     FacultyModule, //* Testeado
-    // HashesModule,
     PollingTablesModule, //* Testeado
     ProposalsModule, //* Testeado
     ResultsModule, //! Falta testear
@@ -55,6 +56,8 @@ const ENV = process.env.NODE_ENV;
     StudentsFrontModule, //! Falta el delete
     UserModule, //* Testeado
     VotesModule,
+    ContractModule,
+    DataHashModule,
   ],
   controllers: [AppController],
   providers: [AppService],

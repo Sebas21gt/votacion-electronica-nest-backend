@@ -1,18 +1,26 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { VoteCreateDto } from '../dto/vote_create.dto';
 import { VotesEntity } from '../model/vote.entity';
-import { HttpException, HttpStatus, InternalServerErrorException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UserEntity } from 'src/modules/users/domain/model/user.entity';
 import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 import { StudentEntity } from 'src/modules/students/domain/model/student.entity';
 import { StudentsFrontEntity } from 'src/modules/students_fronts/domain/model/student_front.entity';
 import { ResultsEntity } from 'src/modules/results/domain/model/result.entity';
+import { PollingTableEntity } from 'src/modules/polling_tables/domain/model/polling_table.entity';
 
 @EntityRepository(VotesEntity)
 export class VotesRepository extends Repository<VotesEntity> {
-
-  async createVote(dto: VoteCreateDto, userId: string): Promise<boolean> {
-    const user = await this.manager.findOne(UserEntity, {
+  async createVote(
+    transaction: any,
+    dto: VoteCreateDto,
+    userId: string,
+  ): Promise<any> {
+    const user = await transaction.findOne(UserEntity, {
       where: { id: userId, status: StatusEnum.Active },
     });
 
@@ -20,52 +28,62 @@ export class VotesRepository extends Repository<VotesEntity> {
       throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
     }
 
-    const student = await this.manager.findOne(StudentEntity, {
+    const student = await transaction.findOne(StudentEntity, {
       userId: user.id,
       status: StatusEnum.Active,
     });
     if (!student) {
       throw new HttpException('Student not found.', HttpStatus.NOT_FOUND);
     }
-    
-    
+
     if (!student.isHabilitated) {
-      throw new HttpException('Student not habilitated.', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Student not habilitated.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    
+
     if (student.isVoted) {
       throw new HttpException('Student already voted.', HttpStatus.BAD_REQUEST);
     }
 
     student.isVoted = true;
-    student.signature = 'data:image/png;base64,' + dto.signature;
-    // student.signature = dto.signature;
-    await this.manager.update(StudentEntity, student.id, student);
-    
-    const fronts = await this.manager.find(StudentsFrontEntity, {
+    student.signature = dto.signature;
+    await transaction.update(StudentEntity, student.id, student);
+
+    const pollingTable = await transaction.findOne(PollingTableEntity, {
+      where: { id: student.pollingTableId },
+    });
+
+    if (!pollingTable) {
+      throw new HttpException('Polling table not found.', HttpStatus.NOT_FOUND);
+    }
+
+    const fronts = await transaction.find(StudentsFrontEntity, {
       where: { status: StatusEnum.Active },
     });
-    
-    
+
     //TODO: HASHEAR EL ID Y COMPARAR CON EL VOTEFRONTID
     const frontId = fronts.find((front) => front.id === dto.voteFrontId);
-    
+
     if (!frontId) {
       throw new HttpException('Front not found.', HttpStatus.NOT_FOUND);
     }
 
-    const resultId = await this.manager.findOne(ResultsEntity, {
-      where: { studentFrontId: frontId, status: StatusEnum.Active },
+    const resultId = await transaction.findOne(ResultsEntity, {
+      where: { studentFrontId: frontId.id, status: StatusEnum.Active },
     });
 
     if (!resultId) {
-      //TODO: CAMBIAR LOS ERRORES A HTTP EXCEPTIONS
       throw new HttpException('Result not found.', HttpStatus.NOT_FOUND);
     }
 
     resultId.votes = resultId.votes + 1;
-    await this.manager.update(ResultsEntity, resultId.id, resultId);
-    return true;
+
+    await transaction.update(ResultsEntity, resultId.id, resultId);
+    console.log(student, frontId, pollingTable);
+    return { student, frontId, pollingTable };
+    // return true;
   }
 
   async findAllVotes(): Promise<VotesEntity[]> {

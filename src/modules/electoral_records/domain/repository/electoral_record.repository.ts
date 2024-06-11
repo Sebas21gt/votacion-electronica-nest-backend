@@ -1,26 +1,22 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import { ElectoralRecordEntity } from '../model/electoral_record.entity';
 import { ElectoralRecordCreateDto } from '../dto/electoral_record_create.dto';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 import { MessageEnum } from 'src/modules/shared/enums/message.enum';
-import { ElectoralRecordUpdateDto } from '../dto/electoral_record_update.dto';
+import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 
-@Injectable()
-export class ElectoralRecordRepository {
-  constructor(
-    @InjectRepository(ElectoralRecordEntity)
-    private readonly repository: Repository<ElectoralRecordEntity>,
-  ) {}
+@EntityRepository(ElectoralRecordEntity)
+export class ElectoralRecordRepository extends Repository<ElectoralRecordEntity>{
 
   async createElectoralRecord(
     dto: ElectoralRecordCreateDto,
   ): Promise<MessageResponse | ElectoralRecordEntity> {
-    const entity = this.repository.create(dto);
+    const entity = this.create(dto);
 
     try {
-      await this.repository.save(entity);
+      await this.save(entity);
     } catch (e) {
       console.error(e);
       return new MessageResponse(
@@ -34,9 +30,9 @@ export class ElectoralRecordRepository {
 
   async updateElectoralRecord(
     id: string,
-    dto: ElectoralRecordUpdateDto,
+    electoralRecord: ElectoralRecordEntity
   ): Promise<MessageResponse | ElectoralRecordEntity> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.findOne({ where: { id } });
     if (!entity) {
       return new MessageResponse(
         HttpStatus.NOT_FOUND,
@@ -44,9 +40,8 @@ export class ElectoralRecordRepository {
         'Electoral record not found.',
       );
     }
-    this.repository.merge(entity, dto);
     try {
-      await this.repository.save(entity);
+      await this.update(entity, electoralRecord);
     } catch (e) {
       console.error(e);
       return new MessageResponse(
@@ -60,7 +55,7 @@ export class ElectoralRecordRepository {
 
   async deleteElectoralRecord(id: string): Promise<MessageResponse> {
     try {
-      const deleteResult = await this.repository.delete(id);
+      const deleteResult = await this.delete(id);
       if (deleteResult.affected === 0) {
         return new MessageResponse(
           HttpStatus.NOT_FOUND,
@@ -83,13 +78,11 @@ export class ElectoralRecordRepository {
     );
   }
 
-  async findOne(options: {
-    where: { id: string };
-  }): Promise<ElectoralRecordEntity> {
-    return this.repository.findOne(options);
+  async findOneElectoral(): Promise<ElectoralRecordEntity> {
+    return this.findOne({where: { status: StatusEnum.Active }});
   }
 
   async findAllElectoralRecords(): Promise<ElectoralRecordEntity[]> {
-    return this.repository.find();
+    return this.find();
   }
 }
