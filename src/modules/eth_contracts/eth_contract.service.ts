@@ -464,7 +464,6 @@ const abiVote = {
 @Injectable()
 export class ContractService {
   private voteSmartContract: Contract;
-  // private own: SignerWithAddress;
   private wallet: Wallet;
 
   private httpProvider;

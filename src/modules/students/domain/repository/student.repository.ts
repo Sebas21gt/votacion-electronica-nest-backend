@@ -77,6 +77,7 @@ export class StudentRepository extends Repository<StudentEntity> {
     try {
       const students = await this.find({
         relations: ['careers'],
+        where: { status: StatusEnum.Active },
       });
 
       return students.map((student) => ({

@@ -48,7 +48,7 @@ export class StudentController {
     return this.studentService.findStudentById(id);
   }
 
-  @Roles(RolesEnum.DELEGATE, RolesEnum.ADMIN)
+  @Roles(RolesEnum.DELEGATE)
   @UseGuards(AuthGuard, RoleGuard)
   @Get('/enable-student/:id')
   async enableStudent(
