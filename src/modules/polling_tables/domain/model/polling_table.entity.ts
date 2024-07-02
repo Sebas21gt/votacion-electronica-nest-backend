@@ -19,6 +19,9 @@ export class PollingTableEntity extends BaseTableEntity {
   @Column({ type: 'timestamp', nullable: true, name: 'date_closed'})
   dateClosed!: Date;
 
+  @Column({ name: 'total_authorizations' })
+  totalAuthorizations: number;
+
   @ManyToOne(
     () => ElectoralConfigurationEntity,
     (electoralConfiguration) => electoralConfiguration.pollingTables,

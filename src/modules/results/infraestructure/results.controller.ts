@@ -12,7 +12,7 @@ export class ResultsController {
         return this.resultsService.createResult(createDto);
     }
 
-    @Get()
+    @Get('/all')
     findAll() {
         return this.resultsService.findAllResults();
     }

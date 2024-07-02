@@ -1,6 +1,6 @@
 // src/proposals/repositories/proposals.repository.ts
 
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, getRepository } from 'typeorm';
 import { HttpStatus } from '@nestjs/common';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 import { MessageEnum } from 'src/modules/shared/enums/message.enum';
@@ -8,6 +8,8 @@ import { ProposalCreateDto } from '../dto/proposal_create.dto';
 import { ProposalUpdateDto } from '../dto/proposal_update.dto';
 import { ProposalsEntity } from '../model/proposal.entity';
 import { StatusEnum } from 'src/modules/shared/enums/status.enum';
+import { StudentPositionEntity } from 'src/modules/student_positions/domain/model/student_position.entity';
+import { StudentsFrontEntity } from 'src/modules/students_fronts/domain/model/student_front.entity';
 
 @EntityRepository(ProposalsEntity)
 export class ProposalsRepository extends Repository<ProposalsEntity> {
@@ -24,20 +26,71 @@ export class ProposalsRepository extends Repository<ProposalsEntity> {
     }
   }
 
-  async findProposalsByStudentFront(
-    studentFrontId: string,
-  ): Promise<ProposalsEntity[] | MessageResponse> {
+  async findProposalsByStudentFront(studentFrontId: string): Promise<any> {
     try {
-      return await this.find({
-        where: { studentFront: { id: studentFrontId }, status: StatusEnum.Active },
-        relations: ['studentFront']
+      const proposalsRepository = getRepository(ProposalsEntity);
+      const studentPositionRepository = getRepository(StudentPositionEntity);
+      const studentFrontRepository = getRepository(StudentsFrontEntity);
+
+      const studentFront = await studentFrontRepository.findOne({
+        where: { id: studentFrontId, status: StatusEnum.Active },
+        select: ['name', 'logo'],
       });
+      studentFront.logo = studentFront.logo.toString();
+
+      if (!studentFront) {
+        return new MessageResponse(
+          HttpStatus.NOT_FOUND,
+          MessageEnum.NOT_FOUND,
+          'Student front not found.',
+        );
+      }
+
+      // Recuperar propuestas asociadas con el frente estudiantil
+      const proposals = await proposalsRepository.find({
+        where: { studentFrontId: studentFrontId, status: StatusEnum.Active },
+        relations: ['studentFront'],
+      });
+
+      // Recuperar posiciones de estudiantes asociadas con el frente estudiantil
+      const studentPositions = await studentPositionRepository.find({
+        where: { frontId: studentFrontId, status: StatusEnum.Active },
+        relations: ['student'],
+      });
+
+      if (!proposals.length && !studentPositions.length) {
+        return new MessageResponse(
+          HttpStatus.NOT_FOUND,
+          MessageEnum.NOT_FOUND,
+          'No proposals or positions found for this student front.',
+        );
+      }
+
+      // Estructurar los resultados juntos
+      const result = {
+        studentFront: {
+          name: studentFront.name,
+          logo: studentFront.logo
+        },
+        proposals: proposals.map((prop) => ({
+          description: prop.description,
+          proposalId: prop.id,
+        })),
+        positions: studentPositions.map((position) => ({
+          studentName: position.student.fullname,
+          studentCI: position.student.ciNumber,
+          positionName: position.positionName,
+          positionDescription: position.positionDescription,
+        })),
+      };
+
+      return result;
     } catch (error) {
-      console.error(error);
+      console.error('Failed to retrieve proposals and positions:', error);
       return new MessageResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
         MessageEnum.ENTITY_ERROR_RETRIEVE,
-        'Failed to retrieve proposals.',
+        'Failed to retrieve proposals and positions.',
       );
     }
   }

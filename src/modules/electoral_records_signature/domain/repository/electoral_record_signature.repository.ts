@@ -14,8 +14,8 @@ export class ElectoralRecordSignatureRepository extends Repository<ElectoralReco
   ): Promise<ElectoralRecordSignatureEntity> {
     const signature = new ElectoralRecordSignatureEntity();
     signature.electoralRecordId = { id: dto.electoralRecordId } as any;
-    signature.delegateId = { id: dto.delegateId } as any;
-    signature.signature = Buffer.from(dto.signature, 'base64');
+    signature.userId = { id: dto.userId } as any;
+    signature.signature = dto.signature;
 
     try {
       await this.save(signature);
@@ -54,7 +54,7 @@ export class ElectoralRecordSignatureRepository extends Repository<ElectoralReco
     const signature = await this.preload({
       id: id,
       ...dto,
-      signature: Buffer.from(dto.signature, 'base64'),
+      signature: dto.signature,
     });
     if (!signature) {
       throw new Error('Signature not found');

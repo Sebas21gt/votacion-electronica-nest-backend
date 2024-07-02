@@ -13,10 +13,12 @@ import { RoleEntity } from 'src/modules/roles/domain/model/role.entity';
 import { GlobalService } from 'src/modules/shared/global.service';
 import { CareerEntity } from 'src/modules/careers/domain/model/career.entity';
 import { StatusEnum } from 'src/modules/shared/enums/status.enum';
+import { keccak256, toUtf8Bytes } from 'ethers';
 
 @EntityRepository(StudentEntity)
 export class StudentRepository extends Repository<StudentEntity> {
   async createStudentWithUser(
+    transaction: any,
     studentDto: StudentCreateDto,
   ): Promise<StudentEntity> {
     const user = new UserEntity();
@@ -31,6 +33,7 @@ export class StudentRepository extends Repository<StudentEntity> {
     student.isVoted = false;
     student.totalAuthorizations = 0;
     student.user = user;
+    student.careers = [];
 
     const role = await getManager().findOne(RoleEntity, {
       where: { id: RolesEnum.STUDENT },
@@ -42,12 +45,25 @@ export class StudentRepository extends Repository<StudentEntity> {
 
     user.roles = [role];
 
+    const careerPrefix = student.collegeNumber.split('-')[0];
+    const career = await transaction.findOne(CareerEntity, {
+      where: { collegeId: parseInt(careerPrefix) },
+    });
+
+    if (career) {
+      if (!student.careers.some((c) => c.id === career.id)) {
+        student.careers.push(career); // Añadir la carrera si no está ya asociada
+      }
+    } else {
+      console.error('Career not found for prefix:', careerPrefix);
+    }
+
     try {
-      await getManager().transaction(async (transactionalEntityManager) => {
-        await transactionalEntityManager.save(user);
-        student.user = user;
-        await transactionalEntityManager.save(student);
-      });
+      // await getManager().transaction(async (transactionalEntityManager) => {
+      await transaction.save(user);
+      student.user = user;
+      await transaction.save(student);
+      // });
       return student;
     } catch (error) {
       console.error(error);
@@ -61,6 +77,7 @@ export class StudentRepository extends Repository<StudentEntity> {
     try {
       const students = await this.find({
         relations: ['careers'],
+        where: { status: StatusEnum.Active },
       });
 
       return students.map((student) => ({
@@ -194,72 +211,73 @@ export class StudentRepository extends Repository<StudentEntity> {
     }
   }
 
-  async importStudentsFromExcel(data: any): Promise<StudentEntity[]> {
+  async importStudentsFromExcel(transaction: any, data: any): Promise<any> {
     const errorStudents: StudentEntity[] = [];
+    let hashStudents: string[] = [];
 
-    await this.manager.transaction(async (transactionalEntityManager) => {
-      const role = await transactionalEntityManager.findOne(RoleEntity, {
-        where: { id: RolesEnum.STUDENT },
-      });
-      if (!role) {
-        throw new Error('Role not found for students.');
-      }
-
-      for (const item of data) {
-        let user = await transactionalEntityManager.findOne(UserEntity, {
-          where: { username: item.CI },
-        });
-
-        if (!user) {
-          user = transactionalEntityManager.create(UserEntity, {
-            username: item.CI,
-            password: item.CI,
-            roles: [role],
-          });
-          await transactionalEntityManager.save(user);
-        }
-
-        let student = await transactionalEntityManager.findOne(StudentEntity, {
-          where: { user: user.id },
-          relations: ['careers'],
-        });
-
-        if (!student) {
-          student = transactionalEntityManager.create(StudentEntity, {
-            fullname: item['APELLIDOS Y NOMBRES'],
-            collegeNumber: item.CU,
-            ciNumber: item.CI,
-            isHabilitated: false,
-            isVoted: false,
-            totalAuthorizations: 0,
-            user: user,
-          });
-          student.careers = [];
-        }
-
-        const careerPrefix = item.CU.split('-')[0];
-        const career = await transactionalEntityManager.findOne(CareerEntity, {
-          where: { collegeId: parseInt(careerPrefix) },
-        });
-
-        if (career) {
-          if (!student.careers.some((c) => c.id === career.id)) {
-            student.careers.push(career); // Añadir la carrera si no está ya asociada
-          }
-        } else {
-          console.error('Career not found for prefix:', careerPrefix);
-          errorStudents.push(item);
-        }
-
-        try {
-          await transactionalEntityManager.save(student); // Guardar el estudiante con las carreras actualizadas
-        } catch (error) {
-          console.error('Failed to save student:', error);
-          errorStudents.push(student);
-        }
-      }
+    const role = await transaction.findOne(RoleEntity, {
+      where: { id: RolesEnum.STUDENT },
     });
+    if (!role) {
+      throw new Error('Role not found for students.');
+    }
 
-    return errorStudents;
+    for (const item of data) {
+      let user = await transaction.findOne(UserEntity, {
+        where: { username: item.CI },
+      });
+
+      if (!user) {
+        user = transaction.create(UserEntity, {
+          username: item.CI,
+          password: item.CI,
+          roles: [role],
+        });
+        await transaction.save(user);
+      }
+
+      let student = await transaction.findOne(StudentEntity, {
+        where: { user: user.id },
+        relations: ['careers'],
+      });
+
+      if (!student) {
+        student = transaction.create(StudentEntity, {
+          fullname: item['APELLIDOS Y NOMBRES'],
+          collegeNumber: item.CU,
+          ciNumber: item.CI,
+          isHabilitated: false,
+          isVoted: false,
+          totalAuthorizations: 0,
+          user: user,
+        });
+        student.careers = [];
+      }
+
+      const careerPrefix = item.CU.split('-')[0];
+      const career = await transaction.findOne(CareerEntity, {
+        where: { collegeId: parseInt(careerPrefix) },
+      });
+
+      if (career) {
+        if (!student.careers.some((c) => c.id === career.id)) {
+          student.careers.push(career); // Añadir la carrera si no está ya asociada
+        }
+      } else {
+        console.error('Career not found for prefix:', careerPrefix);
+        errorStudents.push(item);
+      }
+
+      try {
+        await transaction.save(student);
+        const hash = keccak256(toUtf8Bytes(student.id));
+        hashStudents.push(hash);
+      } catch (error) {
+        console.error('Failed to save student:', error);
+        errorStudents.push(student);
+      }
+    }
+
+    return { errorStudents, hashStudents };
   }
 }

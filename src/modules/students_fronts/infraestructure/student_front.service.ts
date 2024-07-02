@@ -11,8 +11,8 @@ export class StudentsFrontService {
         // private resultsRepository: ResultsRepository
     ) {}
 
-    findAll() {
-        return this.studentsFrontRepository.findAllStudentsFronts();
+    async findAll() {
+        return await this.studentsFrontRepository.findAllStudentsFronts();
     }
 
     findOne(id: string) {

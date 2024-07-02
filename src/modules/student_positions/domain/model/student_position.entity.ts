@@ -11,9 +11,15 @@ export class StudentPositionEntity extends BaseTableEntity {
   @Column({ name: 'position_description',type: 'text' })
   positionDescription!: string;
 
+  @Column({ type: 'uuid', name: 'student_id' })
+  studentId!: string;
+  
   @ManyToOne(() => StudentEntity)
   @JoinColumn({ name: 'student_id' })
   student!: StudentEntity;
+
+  @Column({ type: 'uuid', name: 'front_id' })
+  frontId!: string;
 
   @ManyToOne(() => StudentsFrontEntity)
   @JoinColumn({ name: 'front_id' })

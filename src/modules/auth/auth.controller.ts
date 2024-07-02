@@ -27,7 +27,7 @@ export class AuthController {
   getProfile(@Request() req) {
     return req.user;
   }
-
+  
   @UseGuards(AuthGuard)
   @Get('/logout')
   async logout(@Request() req): Promise<MessageResponse> {

@@ -26,6 +26,9 @@ export class DelegatesEntity extends BaseTableEntity {
   @JoinColumn({ name: 'student_id' })
   student?: StudentEntity;
 
+  @Column()
+  signature!: string;
+
   @Column({ type: 'uuid', name: 'student_front_id' })
   studentFrontId: string;
 

@@ -12,6 +12,11 @@ import { StatusEnum } from 'src/modules/shared/enums/status.enum';
 import { JwtHelper } from 'src/modules/shared/helpers/jwt.helpers';
 import { DelegatesRepository } from 'src/modules/delegates/domain/repository/delegate.repository';
 import { UserRepository } from 'src/modules/users/domain/repository/user.repository';
+import { ContractService } from 'src/modules/eth_contracts/eth_contract.service';
+import { keccak256, toUtf8Bytes } from 'ethers';
+import { DataHashService } from 'src/modules/hashes/infraestructure/hash.service';
+import { DataHashCreateDto } from 'src/modules/hashes/domain/dto/create.dto';
+import { getManager } from 'typeorm';
 
 @Injectable()
 export class StudentService {
@@ -21,10 +26,24 @@ export class StudentService {
     private studentFrontRepository: StudentsFrontRepository,
     private delegateRepository: DelegatesRepository,
     private userRepository: UserRepository,
+    private readonly contractService: ContractService,
+    private readonly dataHashService: DataHashService,
   ) {}
 
-  createStudentWithUser(studentDto: StudentCreateDto): Promise<StudentEntity> {
-    return this.studentRepository.createStudentWithUser(studentDto);
+  async createStudentWithUser(
+    studentDto: StudentCreateDto,
+  ): Promise<StudentEntity> {
+    let student: StudentEntity;
+    await getManager().transaction(async (transaction) => {
+      student = await this.studentRepository.createStudentWithUser(
+        transaction,
+        studentDto,
+      );
+      const hash = keccak256(toUtf8Bytes(student.id));
+      const contract = await this.contractService.addStudent(hash);
+      await this.dataHashService.createDataHash(transaction, contract);
+    });
+    return student;
   }
 
   findAllStudents(): Promise<StudentEntity[]> {
@@ -37,12 +56,12 @@ export class StudentService {
 
   async enableStudent(id: string, auth: string): Promise<StudentEntity> {
     const totalFronts = await this.studentFrontRepository.count({
-      where: { status: StatusEnum.Active},
+      where: { status: StatusEnum.Active },
     });
     const userId = await JwtHelper.getUserIdJWT(auth);
     console.log(userId);
     const user = await this.userRepository.findOne(userId, {
-      where: { status: StatusEnum.Active},
+      where: { status: StatusEnum.Active },
     });
 
     if (!user) {
@@ -56,7 +75,7 @@ export class StudentService {
     if (!student) {
       throw new HttpException('Student not found.', HttpStatus.NOT_FOUND);
     }
-    
+
     const delegate = await this.delegateRepository.findOne({
       where: { studentId: student.id, status: StatusEnum.Active },
     });
@@ -64,8 +83,12 @@ export class StudentService {
     if (!delegate) {
       throw new Error('Delegate not found.');
     }
-    
-    return this.studentRepository.enableStudent(id, totalFronts, delegate.pollingTableId);
+
+    return this.studentRepository.enableStudent(
+      id,
+      totalFronts,
+      delegate.pollingTableId,
+    );
   }
 
   updateStudent(
@@ -84,8 +107,27 @@ export class StudentService {
   }
 
   async importStudentsFromExcel(data: any): Promise<MessageResponse> {
-    const errorStudents =
-      await this.studentRepository.importStudentsFromExcel(data);
+    let errorStudents = [];
+    let hashStudents = [];
+    let contract;
+
+    await getManager().transaction(async (transaction) => {
+      try {
+        ({ errorStudents, hashStudents } =
+          await this.studentRepository.importStudentsFromExcel(
+            transaction,
+            data,
+          ));
+
+        if (hashStudents.length > 0) {
+          contract = await this.contractService.addStudents(hashStudents);
+          await this.dataHashService.createDataHash(transaction, contract);
+        }
+      } catch (error) {
+        throw new Error('Transaction failed: ' + error.message);
+      }
+    });
+
     if (errorStudents.length > 0) {
       return new MessageResponse(
         HttpStatus.PARTIAL_CONTENT,
@@ -93,11 +135,11 @@ export class StudentService {
         errorStudents,
       );
     }
+
     return new MessageResponse(
       HttpStatus.OK,
       MessageEnum.STUDENT_CREATED,
       null,
     );
-    // return this.studentRepository.importStudentsFromExcel(data);
   }
 }

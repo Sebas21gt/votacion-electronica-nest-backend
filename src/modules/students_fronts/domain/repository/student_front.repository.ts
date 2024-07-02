@@ -1,5 +1,9 @@
 import { EntityRepository, Repository, getManager } from 'typeorm';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
 import { MessageEnum } from 'src/modules/shared/enums/message.enum';
 import { StudentsFrontEntity } from '../model/student_front.entity';
@@ -14,13 +18,17 @@ export class StudentsFrontRepository extends Repository<StudentsFrontEntity> {
     StudentsFrontEntity[] | MessageResponse
   > {
     try {
-        const fronts = await this.find({
-          where: { status: StatusEnum.Active },
-        });
+      const fronts = await this.find({
+        where: { status: StatusEnum.Active },
+      });
 
-        return fronts;
-      } catch (error) {
-        console.error(error);
+      fronts.forEach((front) => {
+        front.logo = front.logo.toString();
+      }, this);
+
+      return fronts;
+    } catch (error) {
+      console.error(error);
       return new MessageResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
         MessageEnum.ENTITY_ERROR_RETRIEVE,
@@ -29,25 +37,62 @@ export class StudentsFrontRepository extends Repository<StudentsFrontEntity> {
     }
   }
 
-  async findOneStudentFront(
-    id: string,
-  ): Promise<StudentsFrontEntity | MessageResponse> {
+  async findOneStudentFront(frontId: string): Promise<any> {
     try {
-      const studentFront = await this.findOne(id);
-      if (!studentFront) {
+      // Buscar detalles del frente estudiantil
+      const frontDetails = await this.createQueryBuilder('front')
+        .where('front.id = :frontId', { frontId })
+        .andWhere('front.status = :status', { status: StatusEnum.Active })
+        .select([
+          'front.id',
+          'front.name AS frontName',
+          'front.logo AS frontLogo',
+        ])
+        .getRawOne();
+
+      if (!frontDetails) {
         return new MessageResponse(
           HttpStatus.NOT_FOUND,
           MessageEnum.NOT_FOUND,
           'Student front not found.',
         );
       }
-      return studentFront;
+
+      // frontDetails.frontLogo = frontDetails.frontLogo.toString();
+
+      // Buscar posiciones de estudiantes asociadas al frente
+      const studentPositions = await this.createQueryBuilder('studentPosition')
+        .innerJoin('studentPosition.student', 'student')
+        .innerJoin('studentPosition.front', 'front')
+        .select([
+          'student.fullname AS studentName',
+          'student.ciNumber AS studentCI',
+          'studentPosition.position_name AS positionName',
+          'studentPosition.position_description AS positionDescription',
+        ])
+        .where('studentPosition.frontId = :frontId', { frontId })
+        .andWhere('studentPosition.status = :status', {
+          status: StatusEnum.Active,
+        })
+        .getRawMany();
+
+      // Buscar propuestas asociadas al frente
+      const proposals = await this.createQueryBuilder('proposal')
+        .where('proposal.studentFrontId = :frontId', { frontId })
+        .andWhere('proposal.status = :status', { status: StatusEnum.Active })
+        .select(['proposal.description'])
+        .getRawMany();
+
+      // Combinar los resultados
+      return {
+        ...frontDetails,
+        studentPositions,
+        proposals,
+      };
     } catch (error) {
-      console.error(error);
-      return new MessageResponse(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        MessageEnum.ENTITY_ERROR_RETRIEVE,
-        'Failed to retrieve the student front.',
+      console.error('Failed to retrieve student front details:', error);
+      throw new InternalServerErrorException(
+        'Failed to retrieve student front details.',
       );
     }
   }
@@ -119,7 +164,9 @@ export class StudentsFrontRepository extends Repository<StudentsFrontEntity> {
 
   async deleteStudentFront(id: string): Promise<MessageResponse> {
     try {
-      const deleteResult = await this.delete(id);
+      const deleteResult = await this.update(id, {
+        status: StatusEnum.Deleted,
+      });
       if (deleteResult.affected === 0) {
         return new MessageResponse(
           HttpStatus.NOT_FOUND,
