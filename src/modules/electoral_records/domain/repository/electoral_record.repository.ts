@@ -82,6 +82,10 @@ export class ElectoralRecordRepository extends Repository<ElectoralRecordEntity>
     return this.findOne({where: { status: StatusEnum.Active }});
   }
 
+  async findElectoralRecordById(id: string): Promise<ElectoralRecordEntity> {
+    return this.findOne(id);
+  }
+
   async findAllElectoralRecords(): Promise<ElectoralRecordEntity[]> {
     return this.find();
   }

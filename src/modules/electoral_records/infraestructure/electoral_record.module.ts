@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Res } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ElectoralRecordEntity } from '../domain/model/electoral_record.entity';
 import { ElectoralRecordController } from './electoral_record.controller';
@@ -11,6 +11,7 @@ import { ContractService } from 'src/modules/eth_contracts/eth_contract.service'
 import { DataHashService } from 'src/modules/hashes/infraestructure/hash.service';
 import { DataHashRepository } from 'src/modules/hashes/domain/repository/data_hash.repository';
 import { StudentsFrontRepository } from 'src/modules/students_fronts/domain/repository/student_front.repository';
+import { ResultsRepository } from 'src/modules/results/domain/repository/result.repository';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { StudentsFrontRepository } from 'src/modules/students_fronts/domain/repo
       ElectoralRecordRepository,
       UserRepository,
       ElectoralRecordSignatureRepository,
+      ResultsRepository,
       PollingTablesRepository,
       StudentsFrontRepository,
       DataHashRepository,

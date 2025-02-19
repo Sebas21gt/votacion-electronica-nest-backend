@@ -13,6 +13,17 @@ import { DataHashService } from 'src/modules/hashes/infraestructure/hash.service
 import { StudentsFrontRepository } from 'src/modules/students_fronts/domain/repository/student_front.repository';
 import { In, Not, getManager } from 'typeorm';
 import { keccak256, toUtf8Bytes } from 'ethers';
+import { ResultsRepository } from 'src/modules/results/domain/repository/result.repository';
+import * as PDFDocument from 'pdfkit';
+import { Response } from 'express';
+const moment = require('moment');
+import * as puppeteer from 'puppeteer';
+import * as fs from 'fs';
+import * as Handlebars from 'handlebars';
+
+Handlebars.registerHelper('formatDate', function (dateString) {
+  return moment(dateString).format('DD/MM/YYYY HH:mm');
+});
 
 @Injectable()
 export class ElectoralRecordService {
@@ -21,6 +32,7 @@ export class ElectoralRecordService {
     private readonly electoralRecordRepo: ElectoralRecordRepository,
     private readonly userRepository: UserRepository,
     private readonly electoralRecordSignatureRepository: ElectoralRecordSignatureRepository,
+    private readonly resultsRepository: ResultsRepository,
     private readonly pollingTablesRepository: PollingTablesRepository,
     private readonly studentFrontRepository: StudentsFrontRepository,
     private readonly contractService: ContractService,
@@ -123,6 +135,11 @@ export class ElectoralRecordService {
         { status: StatusEnum.Active },
         { isOpen: false, dateClosed: new Date() },
       );
+
+      await this.electoralRecordRepo.update({
+        status: StatusEnum.Active,
+      }, 
+      { closeDate: new Date() });
     }
 
     committee.signature = signature;
@@ -158,5 +175,78 @@ export class ElectoralRecordService {
 
   findAll() {
     return this.electoralRecordRepo.findAllElectoralRecords();
+  }
+
+  findById(id: string) {
+    return this.electoralRecordRepo.findElectoralRecordById(id);
+  }
+
+  async getCompleteElectoralDetails(): Promise<any> {
+    const electoralRecord = await this.electoralRecordRepo.findOneElectoral();
+    const results = await this.resultsRepository.findAllResults();
+    const signatures =
+      await this.electoralRecordSignatureRepository.findAllSignatures();
+
+    results.sort((a, b) => {
+      const special = ['Blanco', 'Nulo'];
+      const aIsSpecial = special.includes(a.studentFrontName);
+      const bIsSpecial = special.includes(b.studentFrontName);
+
+      if (aIsSpecial && !bIsSpecial) return 1;
+      if (!aIsSpecial && bIsSpecial) return -1;
+
+      return b.votes - a.votes;
+    });
+
+    const totalVotes = results.reduce((total, current) => total + current.votes, 0);
+
+    return {
+      electoralRecord: {
+        id: electoralRecord.id,
+        openDate: electoralRecord.openDate,
+        closeDate: electoralRecord.closeDate,
+      },
+      totalVotes: totalVotes,
+      results: results.map((result) => ({
+        id: result.id,
+        votes: result.votes,
+        studentFrontName: result.studentFront.name,
+      })),
+      signatures: signatures.map((signature) => ({
+        id: signature.id,
+        electoralRecordId: signature.electoralRecordId,
+        userId: signature.userId,
+        signature: signature.signature,
+        fullname: signature.fullname,
+        position: signature.position,
+      })),
+    };
+  }
+
+  async generateElectoralPdf(res: Response): Promise<void> {
+    const details = await this.getCompleteElectoralDetails();
+
+    // Cargar el archivo HTML como plantilla
+    const htmlContent = fs.readFileSync(
+      'src/modules/electoral_records/infraestructure/pdf_template.html',
+      'utf8',
+    );
+    const template = Handlebars.compile(htmlContent);
+    const html = template(details);
+
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const pdf = await page.pdf({ format: 'A4', printBackground: true });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=electoral-report.pdf',
+    );
+    res.send(pdf);
+
+    await browser.close();
   }
 }

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Acta de Escrutinio</title>
+    <style>
+      body {
+        font-family: 'Times New Roman', serif;
+        margin: 40px;
+        background-color: #fff;
+        color: #333;
+      }
+      .header {
+        display: flex;
+        align-items: center; /* Alinea verticalmente los elementos del contenedor */
+        justify-content: center; /* Centra horizontalmente los elementos */
+        text-align: center;
+      }
+
+      .logo-container {
+        flex: 0 0 auto; /* No crece, no se encoge, basado en el contenido */
+        padding-right: 20px; /* Espacio entre el logo y el texto */
+      }
+
+      .text-container {
+        flex: 1; /* Ocupa el espacio restante */
+      }
+
+      .logo {
+        width: 150px; /* o el tamaño deseado */
+        height: auto; /* mantiene la proporción */
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #000;
+        padding: 8px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .section-title {
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      .signatures {
+        margin-top: 60px;
+        display: flex;
+        justify-content: space-around;
+      }
+      .signature {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo-container">
+        <img
+          src="https://res.cloudinary.com/dyvy2ermz/image/upload/v1721710561/sga27igqxid7byjk6nol.png"
+          alt="Logo"
+          class="logo"
+        />
+      </div>
+      <div class="text-container">
+        <h1>
+          UNIVERSIDAD MAYOR, REAL Y PONTIFICIA DE SAN FRANCISCO XAVIER DE
+          CHUQUISACA
+        </h1>
+        <h2>COMISIÓN ELECTORAL - CLAUSTROS UNIVERSITARIOS 2024</h2>
+        <p>ELECCIÓN CENTRO DE ESTUDIANTES</p>
+      </div>
+    </div>
+
+    <p class="section-title">Datos de la Elección:</p>
+    <table>
+      <tr>
+        <th>Fecha de Apertura</th>
+        <td>{{formatDate electoralRecord.openDate}}</td>
+      </tr>
+      <tr>
+        <th>Fecha de Cierre</th>
+        <td>{{formatDate electoralRecord.closeDate }}</td>
+      </tr>
+      <tr>
+        <th>Total Votos</th>
+        <td>{{ totalVotes}}</td>
+      </tr>
+    </table>
+
+    <h2 class="section-title">Resultados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Candidato</th>
+          <th>Votos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each results}}
+        <tr>
+          <td>{{ studentFrontName }}</td>
+          <td>{{ votes }}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <div class="signatures">
+      {{#each signatures}}
+      <div class="signature">
+        <img
+          src="data:image/png;base64,{{ signature }}"
+          alt="Firma"
+          style="width: 100px; height: auto; height: 100px"
+        />
+        <p>{{ fullname }}</p>
+        <p>{{ position }}</p>
+      </div>
+      {{/each}}
+    </div>
+  </body>
+</html>

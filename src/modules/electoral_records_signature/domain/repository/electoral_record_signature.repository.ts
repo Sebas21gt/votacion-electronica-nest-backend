@@ -3,9 +3,6 @@ import { EntityRepository, Repository } from 'typeorm';
 import { ElectoralRecordSignatureEntity } from '../model/electoral_record_signature.entity';
 import { ElectoralRecordSignatureCreateDto } from '../dto/electoral_record_signature_create.dto';
 import { ElectoralRecordSignatureUpdateDto } from '../dto/electoral_record_signature_update.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DelegatesEntity } from 'src/modules/delegates/domain/model/delegate.entity';
-import { DelegatesRepository } from 'src/modules/delegates/domain/repository/delegate.repository';
 
 @EntityRepository(ElectoralRecordSignatureEntity)
 export class ElectoralRecordSignatureRepository extends Repository<ElectoralRecordSignatureEntity> {
@@ -25,10 +22,21 @@ export class ElectoralRecordSignatureRepository extends Repository<ElectoralReco
     }
   }
 
-  async findAllSignatures(): Promise<ElectoralRecordSignatureEntity[]> {
+  async findAllSignatures(): Promise<any[]> {
     try {
-      return await this.find({ relations: ['electoralRecord', 'delegate'] });
+      const signatures = await this.find({
+        relations: ['electoralRecord', 'user'],
+      });
+
+      const transformedSignatures = signatures.map((signature) => ({
+        ...signature,
+        signature: signature.signature,
+        // signature: Buffer.from(signature.signature).toString('base64'),
+      }));
+
+      return transformedSignatures;
     } catch (error) {
+      console.error('Failed to retrieve signatures:', error);
       throw new Error('Failed to retrieve signatures: ' + error.message);
     }
   }
