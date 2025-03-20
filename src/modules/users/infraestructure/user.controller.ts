@@ -1,53 +1,57 @@
 import {
-  Body,
   Controller,
-  Get,
   Post,
+  Body,
+  Get,
+  Param,
   Put,
-  Delete,
   ValidationPipe,
   UsePipes,
-  ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
-import { Param, Req, UseGuards } from '@nestjs/common/decorators';
-import { UserCreateDto } from '../domain/dto/user-create.dto';
-import { UserUpdateDto } from '../domain/dto/user-update.dto';
 import { UserService } from './user.service';
-import { AuthGuard } from 'src/modules/shared/guards/auth.guard';
-const jwt = require('jsonwebtoken');
+import { UserCreateDto } from '../domain/dto/user-create.dto';
+import { UserEntity } from '../domain/model/user.entity';
+import { MessageResponse } from 'src/modules/shared/domain/model/message.response';
+import { RolesEnum } from 'src/modules/shared/enums/roles.enum';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
+import { RoleGuard } from 'src/modules/auth/guards/roles.guard';
+import { Roles } from 'src/modules/shared/decorators/roles.decorator';
 
-@Controller('/user')
-@UseGuards(AuthGuard)
+@Controller('/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('/register')
+  @Roles(RolesEnum.ADMIN, RolesEnum.STUDENT)
+  @UseGuards(AuthGuard, RoleGuard)
+  @Post('/create-user')
   @UsePipes(new ValidationPipe())
-  async userRegister(@Body() userCreateDto: UserCreateDto): Promise<any> {
-    return await this.userService.userRegister(userCreateDto);
-  }
-  // async userCreate(@Req() request: Request, @Body() userCreateDto:UserCreateDto): Promise<any> {
-  //   const authorization = request.headers['authorization'];
-  //   const token = authorization.split(' ')[1];
-  //   var decoded = jwt.decode(token, process.env.JWT_ACCESS_TOKEN);
-  //   return await this.userService.userCreate(userCreateDto, decoded.email);
-  // }
-
-  @Put('/:id')
-  userUpdate(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() userUpdateDto: UserUpdateDto,
-  ): any {
-    return this.userService.userUpdate(id, userUpdateDto);
+  async createUser(
+    @Body() userDto: UserCreateDto,
+  ): Promise<UserEntity | object> {
+    return await this.userService.userCreate(userDto);
   }
 
-  @Get()
-  async getAll(): Promise<any> {
-    return await this.userService.getAll();
+  @Put('/reset-password/:userId')
+  async resetPassword(
+    @Param('userId') userId: string,
+    @Body('oldPassword') oldPassword: string,
+    @Body('newPassword') newPassword: string,
+  ): Promise<MessageResponse> {
+    return await this.userService.resetPassword(
+      userId,
+      oldPassword,
+      newPassword,
+    );
   }
 
-  @Delete('/:id')
-  userDelete(@Param('id') id: number): any {
-    return this.userService.userDelete(id);
+  @Get('/get-user/:id')
+  async getUserById(@Param('id') userId: string): Promise<UserEntity> {
+    return this.userService.findUserById(userId);
+  }
+
+  @Get('/get-users')
+  async getAllUsers(): Promise<UserEntity[]> {
+    return this.userService.findAllUsers();
   }
 }
